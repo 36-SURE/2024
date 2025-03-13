@@ -1,7 +1,7 @@
 ---
 title: "Supervised learning: decision trees"
 author: "<br>SURE 2024<br><br>Department of Statistics & Data Science<br>Carnegie Mellon University"
-footer:  "[36-SURE.github.io](https://36-sure.github.io)"
+footer:  "[36-SURE.github.io/2024](https://36-sure.github.io/2024)"
 format:
   revealjs:
     theme: theme.scss
@@ -373,7 +373,7 @@ knitr::include_graphics("https://bradleyboehmke.github.io/HOML/07-decision-trees
 ```{r}
 library(tidyverse)
 theme_set(theme_light())
-batted_balls <- read_csv("https://raw.githubusercontent.com/36-SURE/36-SURE.github.io/main/data/batted_balls.csv")
+batted_balls <- read_csv("https://raw.githubusercontent.com/36-SURE/2024/main/data/batted_balls.csv")
 glimpse(batted_balls)
 
 set.seed(123)
@@ -480,7 +480,7 @@ hr_tree |>
 ## Appendix: code to build dataset
 
 ```{r}
-savant <- read_csv("https://raw.githubusercontent.com/36-SURE/36-SURE.github.io/main/data/savant.csv")
+savant <- read_csv("https://raw.githubusercontent.com/36-SURE/2024/main/data/savant.csv")
 batted_balls <- savant |> 
   filter(type == "X") |> 
   mutate(is_hr = as.numeric(events == "home_run"),

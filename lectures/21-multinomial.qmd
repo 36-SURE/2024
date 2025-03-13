@@ -1,7 +1,7 @@
 ---
 title: "Supervised learning: multinomial classification"
 author: "<br>SURE 2024<br><br>Department of Statistics & Data Science<br>Carnegie Mellon University"
-footer:  "[36-SURE.github.io](https://36-sure.github.io)"
+footer:  "[36-SURE.github.io/2024](https://36-sure.github.io/2024)"
 format:
   revealjs:
     theme: theme.scss
@@ -89,7 +89,7 @@ knitr::include_graphics("https://bradleyboehmke.github.io/HOML/02-modeling-proce
 ```{r}
 library(tidyverse)
 theme_set(theme_light())
-batted_balls <- read_csv("https://raw.githubusercontent.com/36-SURE/36-SURE.github.io/main/data/batted_balls.csv")
+batted_balls <- read_csv("https://raw.githubusercontent.com/36-SURE/2024/main/data/batted_balls.csv")
 hr_logit <- glm(is_hr ~ launch_speed + launch_angle, family = binomial, data = batted_balls)
 ```
 
@@ -345,7 +345,7 @@ NFL play-by-play dataset (2012-2022) with the next score (in a half) for each pl
 Following steps provided by [`nflfastR`](https://github.com/nflverse/nflverse-pbp/blob/master/models/model_data.R), which follows the OG [`nflscrapR`](https://github.com/ryurko/nflscrapR-models/blob/master/R/init_models/init_ep_fg_models.R)
 
 ```{r}
-nfl_pbp <- read_csv("https://github.com/36-SURE/36-SURE.github.io/raw/main/data/nfl_pbp.csv.gz")
+nfl_pbp <- read_csv("https://github.com/36-SURE/2024/raw/main/data/nfl_pbp.csv.gz")
 # glimpse(nfl_pbp)
 ```
 
