@@ -1,0 +1,7 @@
+---
+title: "SURE 2024"
+---
+
+Welcome to the Summer Undergraduate Research Experience in Statistics (SURE) 2024, hosted by the Department of Statistics & Data Science at Carnegie Mellon University. This program focuses on statistics and data science methodology with applications in healthcare and sports analytics.
+
+On this site, the [Lectures](https://36-sure.github.io/lectures.html) tab contains all lecture slides. The [Health](https://36-sure.github.io/health.html) and [Sports](https://36-sure.github.io/sports.html) tabs contain materials for health and sports labs, respectively.
