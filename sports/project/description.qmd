@@ -14,7 +14,7 @@ This project has the following **three** key deliverables:
 
 ### 1. Report
 
-[[template](https://raw.githubusercontent.com/36-SURE/36-SURE.github.io/main/health/project/report-template.qmd)] (right click and choose "Save Link As..." to download)
+[[template](https://raw.githubusercontent.com/36-SURE/2024/main/sports/project/report-template.qmd)] (right click and choose "Save Link As..." to download)
 
 **DUE THURSDAY JULY 25, 6PM**
 

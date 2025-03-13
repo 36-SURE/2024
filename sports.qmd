@@ -4,7 +4,7 @@ title: "Sports"
 
 ## Capstone project
 
-[Guidelines](https://36-sure.github.io/sports/project/description.html)
+[Guidelines](https://36-sure.github.io/2024/sports/project/description.html)
 
 ## Labs
 
