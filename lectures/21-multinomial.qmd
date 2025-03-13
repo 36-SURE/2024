@@ -611,7 +611,7 @@ Note: XGBoost requires the multinomial categories to be numeric starting at 0
 
 ```{r}
 library(xgboost)  
-nfl_pbp <- read_csv("https://github.com/36-SURE/36-SURE.github.io/raw/main/data/nfl_pbp.csv.gz") |> 
+nfl_pbp <- read_csv("https://github.com/36-SURE/2024/raw/main/data/nfl_pbp.csv.gz") |> 
   mutate(next_score_half = fct_relevel(next_score_half, 
                                        "No_Score", "Safety", "Field_Goal", "Touchdown",
                                        "Opp_Safety", "Opp_Field_Goal", "Opp_Touchdown"),
