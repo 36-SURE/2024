@@ -1,0 +1,814 @@
+---
+title: "Unsupervised learning: hierarchical clustering"
+author: "<br>SURE 2024<br><br>Department of Statistics & Data Science<br>Carnegie Mellon University"
+footer:  "[36-SURE.github.io](https://36-sure.github.io)"
+format:
+  revealjs:
+    theme: theme.scss
+    chalkboard: true
+    smaller: true
+    slide-number: c/t
+    code-line-numbers: false
+    linestretch: 1.25
+    html-math-method:
+      method: mathjax
+      url: "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+---
+
+```{r}
+#| include: false
+knitr::opts_chunk$set(
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  fig.align = "center"
+)
+```
+
+# Background
+
+## The big picture
+
+* $k$-means clustering: partition the observations into a pre-specified number of clusters
+
+. . .
+
+* Hierarchical clustering: does not require commitment to a particular choice of clusters
+
+  *   In fact, we end up with a tree-like visual representation of the observations, called a dendrogram
+  
+  *   This allows us to view at once the clusterings obtained for each possible number of clusters
+  
+  *   Common approach: agglomerative (bottom-up) hierarchical clustering: build a dendrogram starting from the leaves and combining clusters up to the trunk
+  
+  *   There's also divisive (top-down) hierarchical clustering: start with one large cluster and then break the cluster recursively into smaller and smaller pieces
+
+## Data: County-level health indicators for Utah in 2014
+
+```{r}
+library(tidyverse)
+theme_set(theme_light())
+utah_health <- read_csv("https://raw.githubusercontent.com/36-SURE/36-SURE.github.io/main/data/utah_health.csv")
+glimpse(utah_health)
+```
+
+```{r}
+#| echo: false
+ggplot2::theme_set(ggplot2::theme_light(base_size = 20))
+```
+
+## General setup
+
+::: columns
+::: {.column width="50%" style="text-align: left;"}
+
+-   Given a dataset with $p$ variables (columns) and $n$ observations (rows) $x_1,\dots,x_n$
+
+-   Compute the **distance/dissimilarity** between observations
+
+-   e.g. **Euclidean distance** between observations $i$ and $j$
+
+$$d(x_i, x_j) = \sqrt{(x_{i1}-x_{j1})^2 + \cdots + (x_{ip}-x_{jp})^2}$$
+
+**What are the distances between these counties using `PercentOver65` (percent of county population that is 65 and over) and `DiabeticRate` (prevalence of diabetes)?**
+
+```{r}
+#| label: health-start-plot
+#| eval: false
+#| echo: false
+utah_health |> 
+  ggplot(aes(x = PercentOver65, y = DiabeticRate)) +
+  geom_point(size = 4)
+```
+:::
+
+::: {.column width="50%" style="text-align: left;"}
+
+<br>
+
+```{r}
+#| ref-label: health-start-plot
+#| fig-height: 7
+```
+:::
+:::
+
+## Remember to standardize!
+
+::: columns
+::: {.column width="50%" style="text-align: left;"}
+
+```{r}
+#| label: health-std-plot
+#| eval: false
+utah_health <- utah_health |> 
+  mutate(
+    std_pct_over65 = as.numeric(scale(PercentOver65)),
+    std_diabetic_rate = as.numeric(scale(DiabeticRate))
+  )
+
+utah_health |> 
+  ggplot(aes(x = std_pct_over65, y = std_diabetic_rate)) +
+  geom_point(size = 4) +
+  coord_fixed()
+```
+:::
+
+::: {.column width="50%" style="text-align: left;"}
+```{r}
+#| ref-label: health-std-plot
+#| echo: false
+#| fig-height: 7
+```
+:::
+:::
+
+## Compute the distance matrix using `dist()`
+
+-   Compute pairwise Euclidean distance
+
+```{r}
+county_dist <- utah_health |> 
+  select(std_pct_over65, std_diabetic_rate) |> 
+  dist()
+```
+
+-   Returns an object of `dist` class... but not a `matrix`
+
+-   Convert to a matrix, then set the row and column names:
+
+```{r}
+county_dist_matrix <- as.matrix(county_dist)
+rownames(county_dist_matrix) <- utah_health$County
+colnames(county_dist_matrix) <- utah_health$County
+county_dist_matrix[1:4, 1:4]
+```
+
+-   Convert to a long table with `pivot_longer` for plotting purpose
+
+```{r}
+long_dist_matrix <- county_dist_matrix |> 
+  as_tibble() |> 
+  mutate(county1 = rownames(county_dist_matrix)) |> 
+  pivot_longer(cols = !county1, names_to = "county2", values_to = "distance")
+```
+
+## This heatmap is useless...
+
+::: columns
+::: {.column width="50%" style="text-align: left;"}
+
+<br>
+
+```{r}
+#| eval: false
+long_dist_matrix |> 
+  ggplot(aes(x = county1, y = county2, fill = distance)) +
+  geom_tile() +
+  scale_fill_gradient(low = "darkorange", 
+                      high = "darkblue") +
+  coord_fixed() +
+  theme(axis.text = element_blank(), 
+        axis.ticks = element_blank())
+```
+
+:::
+
+
+::: {.column width="50%" style="text-align: left;"}
+
+```{r}
+#| echo: false
+#| fig-height: 10
+long_dist_matrix |> 
+  ggplot(aes(x = county1, y = county2, fill = distance)) +
+  geom_tile() +
+  scale_fill_gradient(low = "darkorange", high = "darkblue") +
+  coord_fixed() +
+  theme(axis.text = element_blank(), 
+        axis.ticks = element_blank())
+```
+
+
+:::
+:::
+
+## Arrange heatmap with `seriation`
+
+::: columns
+::: {.column width="50%" style="text-align: left;"}
+
+<br>
+
+```{r}
+#| eval: false
+library(seriation)
+county_dist_seriate <- seriate(county_dist)
+county_order <- get_order(county_dist_seriate)
+county_names_order <- utah_health$County[county_order]
+long_dist_matrix |> 
+  mutate(
+    county1 = fct_relevel(county1, county_names_order),
+    county2 = fct_relevel(county2, county_names_order)
+  ) |> 
+  ggplot(aes(x = county1, y = county2, fill = distance)) +
+  scale_fill_gradient(low = "darkorange", 
+                      high = "darkblue") +
+  geom_tile() +
+  coord_fixed() +
+  theme(axis.text = element_blank(), 
+        axis.ticks = element_blank())
+```
+
+:::
+
+
+::: {.column width="50%" style="text-align: left;"}
+
+```{r}
+#| echo: false
+#| fig-height: 10
+library(seriation)
+county_dist_seriate <- seriate(county_dist)
+county_order <- get_order(county_dist_seriate)
+county_names_order <- utah_health$County[county_order]
+long_dist_matrix |> 
+  mutate(
+    county1 = fct_relevel(county1, county_names_order),
+    county2 = fct_relevel(county2, county_names_order)
+  ) |> 
+  ggplot(aes(x = county1, y = county2, fill = distance)) +
+  scale_fill_gradient(low = "darkorange", 
+                      high = "darkblue") +
+  geom_tile() +
+  coord_fixed() +
+  theme(axis.text = element_blank(), 
+        axis.ticks = element_blank())
+```
+
+
+:::
+
+:::
+
+# Hierarchical clustering
+
+## (Agglomerative) [Hierarchical clustering](https://en.wikipedia.org/wiki/Hierarchical_clustering)
+
+Let's pretend all $n$ observations are in their own cluster
+
+. . .
+
+-   Step 1: Compute the pairwise dissimilarities between each cluster
+
+    -   e.g., distance matrix on previous slides
+
+. . .
+
+-   Step 2: Identify the pair of clusters that are **least dissimilar**
+
+. . .
+
+-   Step 3: Fuse these two clusters into a new cluster!
+
+. . .
+
+-   **Repeat Steps 1 to 3 until all observations are in the same cluster**
+
+. . .
+
+**"Bottom-up"**, agglomerative clustering that forms a **tree/hierarchy** of merging
+
+No mention of any randomness. And no mention of the number of clusters $k$.
+
+## (Agglomerative) [Hierarchical clustering](https://en.wikipedia.org/wiki/Hierarchical_clustering)
+
+::: columns
+::: {.column width="50%" style="text-align: left;"}
+Start with all observations in their own cluster
+
+-   Step 1: Compute the pairwise dissimilarities between each cluster
+
+-   Step 2: Identify the pair of clusters that are **least dissimilar**
+
+-   Step 3: Fuse these two clusters into a new cluster!
+
+-   **Repeat Steps 1 to 3 until all observations are in the same cluster**
+:::
+
+::: {.column width="50%" style="text-align: left;"}
+```{r}
+#| out-width: "70%"
+#| echo: false
+knitr::include_graphics("https://upload.wikimedia.org/wikipedia/commons/thumb/b/b5/Clusters.svg/250px-Clusters.svg.png")
+```
+:::
+:::
+
+## (Agglomerative) [Hierarchical clustering](https://en.wikipedia.org/wiki/Hierarchical_clustering)
+
+::: columns
+::: {.column width="50%" style="text-align: left;"}
+Start with all observations in their own cluster
+
+-   Step 1: Compute the pairwise dissimilarities between each cluster
+
+-   Step 2: Identify the pair of clusters that are **least dissimilar**
+
+-   Step 3: Fuse these two clusters into a new cluster!
+
+-   **Repeat Steps 1 to 3 until all observations are in the same cluster**
+:::
+
+::: {.column width="50%" style="text-align: left;"}
+```{r}
+#| out-width: "85%"
+#| echo: false
+knitr::include_graphics("https://upload.wikimedia.org/wikipedia/commons/thumb/a/ad/Hierarchical_clustering_simple_diagram.svg/418px-Hierarchical_clustering_simple_diagram.svg.png")
+```
+
+Forms a **dendrogram** (typically displayed from bottom-up)
+:::
+:::
+
+## Dissimilarity between clusters
+
+* We know how to compute distance/dissimilarity between two observations
+
+* **But how do we handle clusters?**
+
+  *   Dissimilarity between a cluster and an observation, or between two clusters
+
+. . .
+
+We need to choose a **linkage function**. Clusters are built up by **linking them together**
+
+
+## Types of linkage
+
+First, compute all pairwise dissimilarities between the observations in the two clusters
+
+i.e., compute the distance matrix between observations, $d(x_i, x_j)$ for $i \in C_1$ and $j \in C_2$
+
+. . .
+
+-   **Complete linkage**: use the **maximum** (largest) value of these dissimilarities \hfill $\underset{i \in C_1, j \in C_2}{\text{max}} d(x_i, x_j)$ (**maximal** inter-cluster dissimilarity)
+
+. . .
+
+-   **Single linkage**: use the **minimum** (smallest) value of these dissimilarities \hfill $\underset{i \in C_1, j \in C_2}{\text{min}} d(x_i, x_j)$ (**minimal** inter-cluster dissimilarity)
+
+. . .
+
+-   **Average linkage**: use the **average** value of these dissimilarities \hfill $\displaystyle \frac{1}{|C_1||C_2|} \sum_{i \in C_1} \sum_{j \in C_2} d(x_i, x_j)$ (**mean** inter-cluster dissimilarity)
+
+. . .
+
+
+## Complete linkage example
+
+::: columns
+::: {.column width="50%" style="text-align: left;"}
+-   Use `hclust()` with a `dist()` objsect
+
+-   Use `complete` linkage by default
+
+```{r}
+utah_complete <- county_dist |> 
+  hclust(method = "complete")
+```
+
+-   Use `cutree()` to return cluster labels
+
+-   Returns compact clusters (similar to $k$-means)
+
+```{r}
+#| eval: false
+utah_health |> 
+  mutate(
+    cluster = as.factor(cutree(utah_complete, k = 3))
+  ) |>
+  ggplot(aes(x = std_pct_over65, y = std_diabetic_rate,
+             color = cluster)) +
+  geom_point(size = 4) + 
+  ggthemes::scale_color_colorblind() +
+  theme(legend.position = "bottom")
+```
+
+
+:::
+
+::: {.column width="50%" style="text-align: left;"}
+
+
+
+```{r}
+#| echo: false
+#| fig-height: 9
+utah_health |> 
+  mutate(
+    cluster = as.factor(cutree(utah_complete, k = 3))
+  ) |>
+  ggplot(aes(x = std_pct_over65, y = std_diabetic_rate,
+             color = cluster)) +
+  geom_point(size = 4) + 
+  ggthemes::scale_color_colorblind() +
+  theme(legend.position = "bottom")
+```
+:::
+:::
+
+## What are we cutting? Dendrograms
+
+::: columns
+::: {.column width="50%" style="text-align: left;"}
+
+Use the [`ggdendro`](https://cran.r-project.org/web/packages/ggdendro/index.html) package (instead of `plot()`)
+
+```{r}
+#| label: complete-dendro
+#| eval: false
+library(ggdendro)
+utah_complete |> 
+  ggdendrogram(labels = FALSE, 
+               leaf_labels = FALSE,
+               theme_dendro = FALSE) +  
+  labs(y = "Dissimilarity between clusters") +
+  theme(axis.text.x = element_blank(), 
+        axis.title.x = element_blank(),
+        panel.grid = element_blank())
+```
+
+-   Each **leaf** is one observation
+
+-   **Height of branch indicates dissimilarity between clusters**
+
+    -   (After first step) Horizontal position along x-axis means nothing
+:::
+
+::: {.column width="50%" style="text-align: left;"}
+```{r}
+#| ref-label: complete-dendro
+#| echo: false
+#| fig-height: 10
+```
+:::
+:::
+
+------------------------------------------------------------------------
+
+## [Textbook example](https://bradleyboehmke.github.io/HOML/hierarchical.html)
+
+<br>
+
+```{r}
+#| out-width: "100%"
+#| echo: false
+knitr::include_graphics("https://bradleyboehmke.github.io/HOML/19-hierarchical_files/figure-html/comparing-dendrogram-to-distances-1.png")
+```
+
+------------------------------------------------------------------------
+
+## Cut dendrograms to obtain cluster labels
+
+::: columns
+::: {.column width="50%" style="text-align: left;"}
+Specify the height to cut with `h` (instead of `k`)
+
+```{r}
+#| label: complete-dendro-cut
+#| echo: false
+#| fig-height: 10
+utah_complete |> 
+  ggdendrogram(labels = FALSE, 
+               leaf_labels = FALSE,
+               theme_dendro = FALSE) +  
+  geom_hline(yintercept = 4, linetype = "dashed", color = "darkred") +
+  labs(y = "Dissimilarity between clusters") +
+  theme(axis.text.x = element_blank(), 
+        axis.title.x = element_blank(),
+        panel.grid = element_blank())
+```
+:::
+
+::: {.column width="50%" style="text-align: left;"}
+
+For example, `cutree(utah_complete, h = 4)`
+
+```{r}
+#| label: health-complete-cut-plot
+#| echo: false
+#| fig-height: 10
+utah_health |> 
+  mutate(
+    cluster = as.factor(cutree(utah_complete, h = 4))
+  ) |> 
+  ggplot(aes(x = std_pct_over65, y = std_diabetic_rate, color = cluster)) +
+  geom_point(size = 4) + 
+  theme(legend.position = "bottom")
+```
+:::
+:::
+
+## Single linkage example
+
+::: columns
+::: {.column width="50%" style="text-align: left;"}
+Change the `method` argument to `single`
+
+```{r}
+#| label: single-dendro-cut
+#| echo: false
+#| fig-height: 10
+utah_single <- county_dist |> 
+  hclust(method = "single")
+utah_single |> 
+  ggdendrogram(labels = FALSE, 
+               leaf_labels = FALSE,
+               theme_dendro = FALSE) +  
+  labs(y = "Dissimilarity between clusters") +
+  theme(axis.text.x = element_blank(), 
+        axis.title.x = element_blank(),
+        panel.grid = element_blank())
+```
+:::
+
+::: {.column width="50%" style="text-align: left;"}
+Results in a **chaining** effect
+
+```{r}
+#| label: health-single-plot
+#| echo: false
+#| fig-height: 10
+utah_health |> 
+  mutate(cluster = 
+           as.factor(cutree(utah_single, k = 3))) |> 
+  ggplot(aes(x = std_pct_over65, y = std_diabetic_rate, color = cluster)) +
+  geom_point(size = 4) + 
+  ggthemes::scale_color_colorblind() +
+  theme(legend.position = "bottom")
+```
+:::
+:::
+
+## Average linkage example
+
+::: columns
+::: {.column width="50%" style="text-align: left;"}
+Change the `method` argument to `average`
+
+```{r}
+#| label: average-dendro-cut
+#| echo: false
+#| fig-height: 10
+utah_average <- county_dist |> 
+  hclust(method = "average")
+utah_average |> 
+  ggdendrogram(labels = FALSE, 
+               leaf_labels = FALSE,
+               theme_dendro = FALSE) +  
+  labs(y = "Dissimilarity between clusters") +
+  theme(axis.text.x = element_blank(), 
+        axis.title.x = element_blank(),
+        panel.grid = element_blank())
+```
+:::
+
+::: {.column width="50%" style="text-align: left;"}
+
+Closer to `complete` but varies in compactness
+
+```{r}
+#| label: health-average-plot
+#| echo: false
+#| fig-height: 10
+utah_health |> 
+  mutate(cluster = 
+           as.factor(cutree(utah_average, k = 3))) |> 
+  ggplot(aes(x = std_pct_over65, y = std_diabetic_rate, color = cluster)) +
+  geom_point(size = 4) + 
+  ggthemes::scale_color_colorblind() +
+  theme(legend.position = "bottom")
+```
+:::
+:::
+
+## More linkage functions
+
+-   **Centroid linkage**: Computes the dissimilarity between the centroid for cluster 1 and the centroid for cluster 2
+
+    -   i.e. distance between the averages of the two clusters
+
+    -   use `method = centroid`
+
+. . .
+
+-   **Ward's linkage**: Merges a pair of clusters to minimize the within-cluster variance
+
+    -   i.e. aim is to minimize the objection function from $K$-means
+
+    -   can use `ward.D` or `ward.D2` (different algorithms)
+
+. . .
+
+-   There's another one...
+
+## [Minimax linkage](https://faculty.marshall.usc.edu/jacob-bien/papers/jasa2011minimax.pdf)
+
+<!-- -   **Identify the point whose farthest point is closest** (hence the minimax) -->
+
+-   Each cluster is defined by a **prototype** observation (most representative)
+
+-   The prototype is "minimally dissimilar" from every point in the cluster (hence the "minimax")
+
+-   Dendrogram interpretation: each point is $\leq h$ in dissimilarity to the **prototype** of cluster
+
+-   **Cluster centers are chosen among the observations themselves - hence prototype**
+
+## Minimax linkage 
+
+-   For each point belonging to either cluster, find the maximum distance between it and all the other points in the two clusters. 
+
+-   The smallest of these maximum distances ("minimal-maximum" distance) is defined as the distance between the two clusters
+
+-   The distance to prototype is measured by the maximum minimax radius
+
+```{r}
+#| out-width: "20%"
+#| echo: false
+knitr::include_graphics("https://europepmc.org/articles/PMC4527350/bin/nihms637357f2.jpg")
+```
+
+
+## Minimax linkage example
+
+::: columns
+::: {.column width="50%" style="text-align: left;"}
+-   Easily done in `R` via the [`protoclust`](https://github.com/jacobbien/protoclust) package
+
+-   Use the `protoclust()` function to apply the clustering to the `dist()` object
+
+```{r}
+#| label: health-minimax
+#| eval: false
+library(protoclust)
+utah_minimax <- protoclust(county_dist_matrix)
+
+utah_minimax |> 
+  as.hclust() |>
+  as.dendrogram() |> 
+  ggdendrogram(labels = FALSE, 
+               leaf_labels = FALSE,
+               theme_dendro = FALSE) +  
+  labs(y = "Dissimilarity between clusters") +
+  theme(axis.text.x = element_blank(), 
+        axis.title.x = element_blank(),
+        panel.grid = element_blank())
+```
+:::
+
+::: {.column width="50%" style="text-align: left;"}
+```{r}
+#| ref-label: health-minimax
+#| echo: false
+#| fig-height: 10
+```
+:::
+:::
+
+## Minimax linkage example
+
+::: columns
+::: {.column width="50%" style="text-align: left;"}
+
+-   Use the `protocut()` function to make the cut
+
+-   But then access the cluster labels `cl`
+
+```{r}
+#| label: health-minimax-cut
+#| eval: false
+minimax_county_clusters <- utah_minimax |> 
+  protocut(k = 3)
+utah_health |> 
+  mutate(cluster = as.factor(minimax_county_clusters$cl)) |>
+  ggplot(aes(x = std_pct_over65, y = std_diabetic_rate,
+             color = cluster)) +
+  geom_point(size = 4) + 
+  ggthemes::scale_color_colorblind() +
+  theme(legend.position = "bottom")
+```
+:::
+
+::: {.column width="50%" style="text-align: left;"}
+```{r}
+#| ref-label: health-minimax-cut
+#| echo: false
+#| fig-height: 10
+```
+:::
+:::
+
+
+## Minimax linkage example
+
+-   Want to check out the prototypes for the three clusters
+
+-   `protocut` returns the indices of the prototypes (in order of the cluster labels)
+
+```{r}
+minimax_county_clusters$protos
+```
+
+-   Subset the rows for these counties using `slice()`
+
+```{r}
+utah_health |>
+  select(County, std_pct_over65, std_diabetic_rate) |>
+  slice(minimax_county_clusters$protos)
+```
+
+## Post-clustering analysis
+
+* For context, how does population relate to our clustering results?
+
+```{r}
+utah_health |> 
+  mutate(cluster = as.factor(minimax_county_clusters$cl)) |> 
+  ggplot(aes(x = log(Population), fill = cluster)) +
+  geom_density(alpha = 0.1) +
+  scale_fill_manual(values = c("darkblue", "purple", "gold", "orange"))
+```
+
+## Post-clustering analysis
+
+::: columns
+::: {.column width="50%" style="text-align: left;"}
+
+```{r}
+#| eval: false
+# utah_health |> 
+#   arrange(Population)
+library(dendextend)
+utah_minimax |> 
+  as.hclust() |>
+  as.dendrogram() |> 
+  set("branches_k_color", k = 3) |> 
+  set("labels_col", k = 3) |> 
+  ggplot(horiz = TRUE)
+```
+
+* Different population levels tend to fall within particular clusters...
+
+* It's easy to **include more variables** - just change the distance matrix
+
+:::
+
+
+::: {.column width="50%" style="text-align: left;"}
+
+```{r}
+#| echo: false
+#| fig-height: 10
+# utah_health |> 
+#   arrange(Population)
+library(dendextend)
+utah_minimax |> 
+  as.hclust() |>
+  as.dendrogram() |> 
+  set("branches_k_color", k = 3) |> 
+  set("labels_col", k = 3) |> 
+  ggplot(horiz = TRUE)
+```
+
+
+:::
+:::
+
+## Practical issues
+
+* What dissimilarity measure should be used?
+
+* What type of linkage should be used?
+
+* How many clusters to choose?
+
+* Which features should we use to drive the clustering?
+  
+  *   Categorical variables?
+
+* Hard clustering vs. soft clustering 
+
+  *   Hard clustering ($k$-means, hierachical): assigns each observation to exactly one cluster
+  
+  *   Soft (fuzzy) clustering: assigns each observation a probability of belonging to a cluster
+
+<center>
+
+<font size="+4">
+
+IT DEPENDS...
+
+</font>
+
+</center>

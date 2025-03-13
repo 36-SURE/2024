@@ -1,0 +1,653 @@
+---
+title: "Supervised learning: variable selection"
+author: "<br>SURE 2024<br><br>Department of Statistics & Data Science<br>Carnegie Mellon University"
+footer:  "[36-SURE.github.io](https://36-sure.github.io)"
+format:
+  revealjs:
+    theme: theme.scss
+    chalkboard: true
+    smaller: true
+    slide-number: c/t
+    code-line-numbers: false
+    linestretch: 1.25
+    html-math-method:
+      method: mathjax
+      url: "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+---
+
+
+```{r}
+#| include: false
+knitr::opts_chunk$set(
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  fig.align = "center",
+  fig.height = 9
+)
+```
+
+# Background
+
+## Setting
+
+Suppose we wish to learn a linear model. Our estimate (denoted by hats) is
+$$
+\hat{Y} = \hat{\beta}_0 + \hat{\beta}_1 X_1 + \cdots + \hat{\beta}_p X_p
+$$
+
+. . .
+
+Why would we attempt to select a __subset__ of the $p$ variables?
+
+. . .
+
+- *To improve prediction accuracy* 
+
+  - Eliminating uninformative predictors can lead to lower variance in the test set MSE, at the expense of a slight increase in bias
+
+. . .
+
+- *To improve model interpretability*
+
+  - Eliminating uninformative predictors is obviously a good thing when your goal is to tell the story of how your predictors are associated with your response.
+
+
+## Best subset selection
+
+- Start with the __null model__ $\mathcal{M}_0$ (intercept-only) that has no predictors
+  - Predict the sample mean for each observation
+  
+. . .
+
+- For $k = 1, 2, \dots, p$ (each possible number of predictors)
+  - Fit __all__ $\displaystyle \binom{p}{k} = \frac{p!}{k!(p-k)!}$ with exactly $k$ predictors
+  - Pick the best among these $\displaystyle \binom{p}{k}$ models, call it $\mathcal{M}_k$
+    - "Best" can be based on cross-validation error, highest adjusted $R^2$, etc.
+    - "It depends on your loss function"
+  
+. . .
+
+- Select a single best model from among $\mathcal{M}_0, \dots, \mathcal{M}_p$
+
+## Best subset selection
+
+__This is not typically used in research!__
+
+- only practical for a smaller number of variables
+
+- computationally infeasible for a large number of predictors
+
+- arbitrary way of defining __best__ and ignores __prior knowledge__ about potential predictors
+
+
+## Use the shoe leather approach
+
+Do not turn off your brain!
+
+- algorithms can be tempting but they are NOT substitutes!
+- you should NOT avoid the hard work of EDA in your modeling efforts
+
+. . .
+
+__Variable selection is a difficult problem!__
+
+- Like much of a statistics research, there is not one unique, correct answer
+
+. . .
+
+Justify which predictors used in modeling based on:
+
+- __domain knowledge__
+- __context__
+- __extensive EDA__
+- __model assessment based on holdout predictions__
+
+
+:::aside
+Recommended reading: David A. Freedman (1991). *Statistical Models and Shoe Leather*
+:::
+
+## Covariance and correlation
+
+- __Covariance__ is a measure of the __linear__ dependence between two variables
+
+  - To be _"uncorrelated"_ is not the same as to be _"independent"_...
+  
+  - Independence means __there is no dependence__, linear or otherwise
+  
+  - If two variables are independent, then they are also uncorrelated. However, if two variables are uncorrelated, then they can still be dependent.
+  
+  - [Recommended reading](https://www.stat.cmu.edu/~cshalizi/uADA/13/reminders/uncorrelated-vs-independent.pdf)
+  
+
+. . .
+
+- __Correlation__ is a _normalized_ form of covariance, ranges from -1 to 1
+
+  - -1 means one variable linearly decreases absolutely in value while the other increases
+  
+  - 0 means no linear dependence
+  
+  - 1 means one variable linear increases absolutely while the other increases
+
+# Case study
+
+## Data: [Hollywood Movies (2012-2018)](https://rdrr.io/cran/Lock5Data/man/HollywoodMovies.html)
+
+```{r, warning = FALSE, message = FALSE}
+library(tidyverse)
+theme_set(theme_light())
+movies <- read_csv("https://raw.githubusercontent.com/36-SURE/36-SURE.github.io/main/data/movies.csv")
+glimpse(movies)
+movies <- movies |> 
+  janitor::clean_names() |> 
+  select(audience_score, rotten_tomatoes, theaters_open_week, opening_weekend, budget, domestic_gross, foreign_gross) |> 
+  drop_na()
+```
+
+```{r}
+#| echo: false
+ggplot2::theme_set(ggplot2::theme_light(base_size = 20))
+```
+
+
+## Modeling audience rating
+
+Interested in modeling the audience rating of a movie
+
+```{r score-diff}
+#| fig-height: 7
+movies |> 
+  ggplot(aes(x = audience_score)) +
+  geom_histogram(fill = "gray", color = "white")
+```
+
+
+## Correlation matrix of audience score and candidate predictors
+
+::: columns
+::: {.column width="50%" style="text-align: left;"}
+
+- Interested in `audience_score` relationships with critics rating, opening weekend statistics, budget, gross income of viewers
+
+- Plot correlation matrix with `ggcorrplot`
+```{r init-cor, echo = TRUE, eval = FALSE}
+# can also use corrr package
+# library(corrr)
+# movies |> 
+#   correlate(diagonal = 1) |> # get correlation matrix
+#   stretch() |>  # similar to pivot_longer
+#   ggplot(aes(x, y, fill = r)) +
+#   geom_tile()
+library(ggcorrplot)
+movies_cor <- cor(movies)
+ggcorrplot(movies_cor)
+```
+
+
+:::
+
+
+
+::: {.column width="50%" style="text-align: left;"}
+
+```{r ref.label = 'init-cor', echo = FALSE}
+```
+
+:::
+:::
+
+
+
+
+## Customize the appearance of the correlation matrix
+
+::: columns
+::: {.column width="50%" style="text-align: left;"}
+
+- Avoid redundancy by only using one half of matrix with `type`
+
+- Add correlation value labels using `lab` (but round first!)
+
+- Can arrange variables based on clustering...
+
+```{r pretty-cor, echo = TRUE, eval = FALSE}
+movies_cor |> 
+  round(2) |> 
+  ggcorrplot(hc.order = TRUE, type = "lower", lab = TRUE)
+```
+
+
+:::
+
+::: {.column width="50%" style="text-align: left;"}
+
+```{r ref.label='pretty-cor', echo = FALSE}
+
+```
+
+:::
+:::
+
+
+
+
+## Clustering variables using the correlation matrix
+
+Apply hierarchical clustering to variables instead of observations
+
+
+. . .
+
+- Select the explanatory variables of interest from our data
+
+```{r select-preds}
+movies_feat <- movies |> 
+  select(-audience_score)
+```
+
+. . .
+
+- Compute correlation matrix of these variables
+
+```{r exp-cor}
+feat_cor <- cor(movies_feat)
+```
+
+. . .
+
+- Correlations measure similarity and can be negative __BUT__ distances measure dissimilarity and __CANNOT__
+
+- Convert your correlations to all be $\geq 0$: e.g., $1 - |\rho|$ (which drops the sign) or $1 - \rho$
+
+
+```{r cor-dist}
+cor_dist_matrix <- 1 - abs(feat_cor)
+```
+
+. . .
+
+- Convert to distance matrix before using `hclust`
+
+```{r as-dist}
+cor_dist_matrix <- as.dist(cor_dist_matrix)
+```
+
+
+## Clustering variables using the correlation matrix
+
+::: columns
+::: {.column width="50%" style="text-align: left;"}
+
+- Cluster variables using `hclust()` as before
+
+- Use [`ggdendro`](https://cran.r-project.org/web/packages/ggdendro/vignettes/ggdendro.html) to quickly visualize dendrogram
+
+```{r init-var-cluster, eval = FALSE}
+library(ggdendro)
+movies_feat_hc <- hclust(cor_dist_matrix, "complete")
+ggdendrogram(movies_feat_hc,
+             rotate = TRUE,
+             size = 2)
+```
+
+:::
+
+::: {.column width="50%" style="text-align: left;"}
+
+```{r ref.label = 'init-var-cluster', echo = FALSE}
+
+```
+
+:::
+:::
+
+
+
+
+## Clustering variables using the correlation matrix
+
+::: columns
+::: {.column width="50%" style="text-align: left;"}
+
+- Another flexible option is [`dendextend`](https://cran.r-project.org/web/packages/dendextend/vignettes/dendextend.html)
+
+```{r var-dendro, eval = FALSE}
+library(dendextend)
+cor_dist_matrix |>
+  hclust() |>
+  as.dendrogram() |>
+  set("branches_k_col", k = 2) |>
+  set("labels_cex", 1) |>
+  ggplot(horiz = TRUE)
+```
+
+- Explore the [package documentation](https://cran.r-project.org/web/packages/dendextend/vignettes/dendextend.html) for more formatting
+
+:::
+
+::: {.column width="50%" style="text-align: left;"}
+
+```{r ref.label='var-dendro', echo = FALSE}
+
+```
+
+
+:::
+:::
+
+
+
+## Back to the response variable...
+
+Pairs plot using [`GGally`](https://ggobi.github.io/ggally/index.html)
+
+- __always look at your data__
+
+- correlation values alone are not enough!
+
+- what if a variable displayed a nonlinear (e.g. quadratic) relationship?
+
+
+```{r pairsplot, eval = FALSE}
+library(GGally)
+ggpairs(movies)
+```
+
+## Back to the response variable...
+
+```{r}
+#| echo: false
+ggplot2::theme_set(ggplot2::theme_light(base_size = 14))
+```
+
+```{r ref.label='pairsplot', echo = FALSE, fig.height=11, fig.width=14}
+
+```
+
+```{r}
+#| echo: false
+ggplot2::theme_set(ggplot2::theme_light(base_size = 20))
+```
+
+## Which variables matter for modeling audience rating?
+
+. . .
+
+Use __10-fold cross-validation__ to assess how well different sets of variables perform in predicting `audience_score`?
+
+
+. . .
+
+Create a column of __test__ fold assignments to our dataset with the `sample()` function:
+
+```{r init-folds}
+set.seed(100)
+k <- 10
+movies <- movies |>
+  mutate(test_fold = sample(rep(1:k, length.out = n())))
+
+# table(movies$test_fold)  
+```
+
+
+. . .
+
+__Always remember to `set.seed()` prior to performing $k$-fold cross-validation!__
+
+
+
+## Writing a function for $k$-fold cross-validation
+
+```{r}
+get_cv_pred <- function(model_formula, data = movies) {
+  # generate holdout predictions for every row
+  get_test_pred <- function(fold) {
+  
+    # separate test and training data
+  
+    test_data <- data |> filter(test_fold == fold)
+    train_data <- data |> filter(test_fold != fold)
+    train_fit <- lm(as.formula(model_formula), data = train_data)
+  
+    # return test results
+    test_res <- tibble(test_pred = predict(train_fit, newdata = test_data),
+                       test_actual = test_data$audience_score,
+                       test_fold = fold)
+    return(test_res)
+  }
+  
+  test_pred <- map(1:k, get_test_pred) |> 
+    bind_rows()
+  
+  return(test_pred)
+}
+```
+
+
+
+
+
+## Function enables easy generation of holdout analysis
+
+```{r}
+all_pred <- get_cv_pred(
+  "audience_score ~ rotten_tomatoes + theaters_open_week + opening_weekend + budget + domestic_gross + foreign_gross"
+)
+all_no_critics_pred <- get_cv_pred(
+  "audience_score ~ theaters_open_week + opening_weekend + budget + domestic_gross + foreign_gross"
+)
+critics_only_pred <- get_cv_pred("audience_score ~ rotten_tomatoes")
+opening_only_pred <- get_cv_pred("audience_score ~ budget + theaters_open_week + opening_weekend + rotten_tomatoes")
+gross_only_pred <- get_cv_pred("audience_score ~ domestic_gross + foreign_gross + rotten_tomatoes")
+int_only_pred <- get_cv_pred("audience_score ~ 1")
+```
+
+. . .
+
+::: columns
+::: {.column width="50%" style="text-align: left;"}
+
+Can then summarize together for a single plot:
+
+```{r five-fold, eval = FALSE}
+bind_rows(
+  mutate(all_pred, mod = "All"),
+  mutate(all_no_critics_pred, mod = "All but critics"),
+  mutate(critics_only_pred, mod = "Critics only"),
+  mutate(opening_only_pred, mod = "Opening only"),
+  mutate(gross_only_pred, mod = "Gross income only"),
+  mutate(int_only_pred, mod = "Intercept only")
+) |>
+  group_by(mod) |>
+  summarize(
+    rmse = sqrt(mean((test_actual - test_pred)^2))
+  ) |>
+  mutate(mod = fct_reorder(mod, rmse)) |>
+  ggplot(aes(x = rmse, y = mod)) +
+  geom_point()
+```
+
+
+:::
+
+::: {.column width="50%" style="text-align: left;"}
+
+```{r ref.label='five-fold', echo = FALSE, fig.height=8}
+
+```
+
+:::
+:::
+
+## Fit selected model on all data and view summary
+
+```{r}
+all_fit <- lm(
+  audience_score ~ rotten_tomatoes + theaters_open_week + opening_weekend + budget + domestic_gross + foreign_gross, 
+  data = movies
+)
+# summary(all_fit)
+library(broom)
+all_fit |> tidy()
+```
+
+. . .
+
+* But... do NOT show a coefficients table in a presentation (well... it depends)
+
+* A nicely formatted table of the summary output is more appropriate in a written report
+
+* Packages that can take a model object and produce a neat table summary: `kableExtra`, `texreg`, `modelsummary`, `gtsummary`, `huxtable`, `sjPlot`
+
+## Coefficient plot (with uncertainty quantification)
+
+```{r}
+#| echo: false
+ggplot2::theme_set(ggplot2::theme_light(base_size = 22))
+```
+
+```{r, fig.width=20, fig.height=8}
+all_fit |> 
+  tidy(conf.int = TRUE) |> 
+  filter(term != "(Intercept)") |> 
+  ggplot(aes(x = estimate, y = term))  +
+  geom_point(size = 4) +
+  geom_errorbar(aes(xmin = conf.low, xmax = conf.high, width = 0.2)) +
+  geom_vline(xintercept = 0, linetype = "dashed", color = "red")
+```
+
+:::aside
+It's also called a dot-and-whisker plot or forest plot or blobbogram
+:::
+
+<!-- - Use `ggcoef()` from `GGally` package -->
+<!-- ```{r ggcoef, fig.width=18} -->
+<!-- all_fit |>  -->
+<!--   ggcoef(exclude_intercept = TRUE, vline = TRUE, vline_color = "red") -->
+<!-- ``` -->
+
+## Interpretation
+
+```{r}
+all_fit |> tidy(conf.int = TRUE)
+```
+
+. . .
+
+For `rotten_tomatoes`:
+
+*   Coefficient interpretation: Among the Hollywood movies, each additional score in Rotten Tomatoes rating is associated with a 0.395 higher score in audience rating, on average ((95% CI [0.363, 0.426]))
+
+*   Test for the coefficient: With $t=24.7$ and $p$-value $<0.001$, we have sufficient evidence that audience rating and Rotten Tomatoes critic rating are related, after accounting for other variables in the model (i.e. there was a statistically significant association between audience and critic ratings).
+
+# Making tables
+
+## `broom::tidy()`and `kable()`
+
+See also: [`kableExtra`](https://cran.r-project.org/web/packages/kableExtra/vignettes/awesome_table_in_html.html)
+
+```{r}
+all_fit |> 
+  tidy() |> 
+  knitr::kable(digits = 3,
+               col.names = c("Term", "Estimate", "SE", "t", "p-value"))
+```
+
+## `broom::tidy()`and `gt()`
+
+```{r}
+library(gt)
+all_fit |> 
+  tidy() |> 
+  gt() |> 
+  fmt_number(columns = where(is.numeric), decimals = 2) |> 
+  cols_label(term = "Term",
+             estimate = "Estimate",
+             std.error = "SE",
+             statistic = "t",
+             p.value = md("*p*-value"))
+```
+
+## [`gtsummary`](https://www.danieldsjoberg.com/gtsummary/articles/tbl_regression.html)
+
+Use `tbl_regression()` function
+
+```{r}
+library(gtsummary)
+all_fit |> 
+  tbl_regression() |> 
+  bold_p() |> 
+  bold_labels()
+```
+
+
+## [`gt`](https://gt.rstudio.com/) (and [`gtExtras`](https://jthomasmock.github.io/gtExtras/))
+
+
+```{r, out.width="80%", echo=FALSE}
+knitr::include_graphics("https://gt.rstudio.com/reference/figures/gt_parts_of_a_table.svg")
+```
+
+:::aside
+There are also [other `R` packages for making tables](https://bookdown.org/yihui/rmarkdown-cookbook/table-other.html)
+:::
+
+## A `gt` example
+
+For more in-depth tutorials, see [here](https://themockup.blog/posts/2020-05-16-gt-a-grammar-of-tables/) and [here](https://jthomasmock.github.io/gtExtras/articles/plotting-with-gtExtras.html)
+
+
+```{r}
+#| eval: false
+# https://bradcongelio.com/nfl-analytics-with-r-book/04-nfl-analytics-visualization.html
+cpoe <- read_csv("http://nfl-book.bradcongelio.com/pure-cpoe")
+cpoe_gt <- cpoe |> 
+  select(passer, season, total_attempts, mean_cpoe) |> 
+  gt(rowname_col = "passer") |> 
+  fmt_number(columns = c(mean_cpoe), decimals = 2) |>
+  data_color(columns = c(mean_cpoe),
+             fn = scales::col_numeric(palette = c("#FEE0D2", "#67000D"), domain = NULL)) |> 
+  cols_align(align = "center", columns = c("season", "total_attempts")) |> 
+  tab_stubhead(label = "Quarterback") |> 
+  cols_label(season = "Season",
+             total_attempts = "Attempts",
+             mean_cpoe = "Mean CPOE") |> 
+  tab_header(title = md("**Average CPOE in Pure Passing Situations**"),
+             subtitle = md("*For seasons between 2010 and 2022*")) |> 
+  tab_source_note(source_note = md("Example adapted from the book<br>*An Introduction to NFL Analytics with R*")) |> 
+  gtExtras::gt_theme_espn()
+
+# gtsave(cpoe_gt, "cpoe_gt.png")
+```
+
+## A `gt` example
+
+```{r}
+#| echo: false
+# https://bradcongelio.com/nfl-analytics-with-r-book/04-nfl-analytics-visualization.html
+cpoe <- read_csv("http://nfl-book.bradcongelio.com/pure-cpoe")
+cpoe_gt <- cpoe |> 
+  select(passer, season, total_attempts, mean_cpoe) |> 
+  gt(rowname_col = "passer") |> 
+  fmt_number(columns = c(mean_cpoe), decimals = 2) |>
+  data_color(
+    columns = c(mean_cpoe),
+    fn = scales::col_numeric(
+      palette = c("#FEE0D2", "#67000D"),
+      domain = NULL
+    )
+  ) |> 
+  cols_align(align = "center", columns = c("season", "total_attempts")) |> 
+  tab_stubhead(label = "Quarterback") |> 
+  cols_label(season = "Season",
+             total_attempts = "Attempts",
+             mean_cpoe = "Mean CPOE") |> 
+  tab_header(title = md("**Average CPOE in Pure Passing Situations**"),
+             subtitle = md("*For seasons between 2010 and 2022*")) |> 
+  tab_source_note(source_note = md("Example adapted from the book<br>*An Introduction to NFL Analytics with R*")) |> 
+  gtExtras::gt_theme_espn()
+cpoe_gt
+# gtsave(cpoe_gt, "cpoe_gt.png")
+```

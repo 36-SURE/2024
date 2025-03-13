@@ -1,0 +1,708 @@
+---
+title: "Supervised learning: multinomial classification"
+author: "<br>SURE 2024<br><br>Department of Statistics & Data Science<br>Carnegie Mellon University"
+footer:  "[36-SURE.github.io](https://36-sure.github.io)"
+format:
+  revealjs:
+    theme: theme.scss
+    chalkboard: true
+    smaller: true
+    slide-number: c/t
+    code-line-numbers: false
+    linestretch: 1.25
+    html-math-method:
+      method: mathjax
+      url: "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+---
+
+
+```{r}
+#| include: false
+knitr::opts_chunk$set(
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  fig.align = "center",
+  fig.height = 9
+)
+library(tidyverse)
+ggplot2::theme_set(ggplot2::theme_light(base_size = 20))
+```
+
+# Binary classification
+
+## Review: binary classification
+
+*   Classification: predicting a categorical response for an observation (since it involves assigning the observation to a category/class)
+
+*   Binary classification: response is binary
+
+*   Often, we are more interested in estimating the probability for each category of the response
+
+*   Methods: logistic regression, GAMs, tree-based methods, to name a few
+
+## Evaluating the prediction threshold
+
+*   For each observation, obtain predicted class by comparing the predicted probability to some cutoff $c$ (typically, $c=0.5$) $$\hat{Y} =\left\{\begin{array}{ll} 1, & \hat{p}(x)>c \\ 0, & \hat{p}(x) \leq c \end{array}\right.$$
+
+. . .
+
+*   Given the classifications, we can form a confusion matrix:
+
+```{r out.width='30%', echo = FALSE, fig.align='center'}
+knitr::include_graphics("https://www.researchgate.net/publication/358927129/figure/fig1/AS:11431281104485755@1670091775265/Gambar-5-Confusion-matrix-model37-Dari-gambar-5-menggambarkan-True-Positive-TP-yang.png")
+```
+
+## Confusion matrix
+
+```{r out.width='120%', echo = FALSE, fig.align='center'}
+knitr::include_graphics("https://www.researchgate.net/publication/358927129/figure/fig1/AS:11431281104485755@1670091775265/Gambar-5-Confusion-matrix-model37-Dari-gambar-5-menggambarkan-True-Positive-TP-yang.png")
+```
+
+We want to __maximize__ all of the following (positive means 1, negative means 0):
+
+- __Accuracy__: How often is the classifier correct? $(\text{TP} + \text{TN}) \ / \ {\text{total}}$
+- __Precision__: How often is it right for predicted positives? $\text{TP} \ / \  (\text{TP} + \text{FP})$
+- __Sensitivity__ (or true positive rate (TPR) or power): How often does it detect positives? $\text{TP} \ / \  (\text{TP} + \text{FN})$
+- __Specificity__ (or true negative rate (TNR), or 1 - false positive rate (FPR)): How often does it detect negatives? $\text{TN}  \ / \ (\text{TN} + \text{FP})$
+
+## Receiver operating characteristic (ROC) curve
+
+Question: How do we balance between high power and low false positive rate?
+
+. . .
+
+* Check all possible values for the cutoff $c$, plot the power against false positive rate
+
+* Want to maximize the __area under the curve (AUC)__
+
+```{r out.width='60%', echo = FALSE, fig.align='center'}
+knitr::include_graphics("https://bradleyboehmke.github.io/HOML/02-modeling-process_files/figure-html/modeling-process-roc-1.png")
+```
+
+## Plotting an ROC curve
+
+*   Example: MLB home run probability
+
+*   Model: logistic regression with exit velocity and launch angle as predictors
+
+```{r}
+library(tidyverse)
+theme_set(theme_light())
+batted_balls <- read_csv("https://raw.githubusercontent.com/36-SURE/36-SURE.github.io/main/data/batted_balls.csv")
+hr_logit <- glm(is_hr ~ launch_speed + launch_angle, family = binomial, data = batted_balls)
+```
+
+```{r}
+#| echo: false
+ggplot2::theme_set(ggplot2::theme_light(base_size = 20))
+```
+
+
+```{r}
+library(pROC)
+hr_roc <- batted_balls |> 
+  mutate(pred_hr = predict(hr_logit, type = "response")) |> 
+  roc(is_hr, pred_hr)
+# str(hr_roc)
+hr_roc$auc
+```
+
+## Plotting an ROC curve
+
+```{r}
+tibble(threshold = hr_roc$thresholds,
+       specificity = hr_roc$specificities,
+       sensitivity = hr_roc$sensitivities) |> 
+  ggplot(aes(x = 1 - specificity, y = sensitivity)) +
+  geom_path() +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed")
+```
+
+
+
+# Multinomial classification
+
+## Motivating example: expected points in American football
+
+Football is complicated --- **not all yards are created equal**
+
+. . .
+
+```{r}
+#| echo: false
+#| fig-width: 20
+library(sportyR)
+field_params <- list(field_apron = "springgreen3",
+                     field_border = "springgreen3",
+                     offensive_endzone = "springgreen3",
+                     defensive_endzone = "springgreen3",
+                     offensive_half = "springgreen3",
+                     defensive_half = "springgreen3")
+nfl_field <- geom_football(league = "nfl",
+                           display_range = "in_bounds_only",
+                           x_trans = 60,
+                           y_trans = 26.6667,
+                           xlims = c(45, 105),
+                           rotation = 90,
+                           color_updates = field_params)
+f1 <- nfl_field +
+  annotate("segment", y = 78, yend = 78, x = -160 / 3, xend = 0, linewidth = 2.5) +
+  annotate("segment", y = 80, yend = 80, x = -160 / 3, xend = 0, color = "gold", linewidth = 4) +
+  annotate("segment", y = 78, yend = 81, x = -160 / 6, xend = -160 / 6, linewidth = 2.5, color = "blue", arrow = arrow(length = unit(0.5,"cm")))
+
+f2 <- nfl_field +
+  annotate("segment", y = 65, yend = 65, x = -160 / 3, xend = 0, linewidth = 2.4) +
+  annotate("segment", y = 80, yend = 80, x = -160 / 3, xend = 0, color = "gold", linewidth = 4) +
+  annotate("segment", y = 65, yend = 74, x = -160 / 6, xend = -160 / 6, linewidth = 2.4, color = "blue", arrow = arrow(length = unit(0.5,"cm")))
+
+cowplot::plot_grid(f1, f2)
+```
+
+## Play evaluation in American football
+
+* How do we overcome the limitations of yards gained?
+
+. . .
+
+* Expected points: how many points have teams scored in similar situations?
+
+. . .
+
+* Win probability: have teams in similar situations won the game?
+
+## NFL play-by-play data
+
+Each row is a play with contextual information:
+
+* Possession team: team with the ball, on offense (opposing team is on defense)
+
+. . .
+
+* Down: 4 downs to advance the ball 10 (or more) yards
+
+  *   New set of downs, else turnover to defense
+  
+. . .  
+
+* Yards to go: distance in yards to go for a first down
+
+. . .
+
+
+* Yard line: distance in yards away from opponent's endzone (100 to 0) - the field position
+
+. . .
+
+* Time remaining: seconds remaining in game, each game is 3600 seconds long
+
+  *   4 quarters, halftime in between, followed by a potential overtime
+  
+## NFL play-by-play data  
+
+Drive: a series of plays, changes with possession and the types of scoring events:
+
+*   No Score: 0 points - turnover the ball or half/game ends
+
+*   Field Goal: 3 points - kick through opponent's goal post
+
+*   Touchdown: 7 points - enter opponent's end zone
+
+*   Safety: 2 points for opponent - tackled in own endzone
+
+. . .
+
+Next score: type of next score with respect to possession team
+
+*   For: Touchdown (7), Field Goal (3), Safety (2)
+
+*   Against: -Touchdown (-7), -Field Goal (-3), -Safety (-2)
+
+*   No Score (0)
+
+## Expected points
+
+*   __Expected points:__ Measure the value of play in terms of $\mathbb{E}[\text{points of next scoring play}]$
+
+    * - i.e., historically, how many points have teams scored when in similar situations?
+    
+. . .
+
+*   __Response__: $Y \in$ {touchdown, field goal, safety, no score, -safety, -field goal, -touchdown} 
+
+*   __Predictors__: $\mathbf{X} =$ {down, yards to go, yard line, ...}
+
+. . .
+
+::: columns
+::: {.column width="50%" style="text-align: center;"}
+
+| $Y$         | value | probability  |
+|-------------|-------|--------------|
+| touchdown   | 7     |              |
+| field goal  | 3     |              |
+| safety      | 2     |              |
+| no score    | 0     |              |
+| -safety     | -2    |              |
+| -field goal | -3    |              |
+| -touchdown  | -7    |              |
+
+:::
+
+::: {.column width="50%" style="text-align: left;"}
+
+*   Task: __estimate the probabilities__ of each scoring event to compute expected points
+
+- Outcome probabilities $$P(Y = y \mid  \mathbf{X})$$
+
+- Expected points $$E(Y \mid \mathbf{X}) = \sum_{y \in Y} y \cdot P(Y=y \mid\mathbf{X})$$
+
+:::
+:::
+
+. . .
+
+**Important question: Which model do we use when a categorical response variable has more than two classes?**
+
+## Review: logistic regression 
+
+Response variable $Y$ is binary categorical with two possible values: 1 or 0<br>(i.e. binary classification problem)
+
+Estimate the probability
+
+$$
+p(x) = P(Y = 1 \mid X = x)
+$$
+
+Assuming that we are dealing with two classes, the possible observed values for $Y$ are 0 and 1, 
+$$
+Y \mid x \sim {\rm Binomial}(n=1,p=\mathbb{E}[Y \mid x])
+$$
+
+. . .
+
+To limit the regression between $[0, 1]$, use the __logit__ function (i.e., the __log-odds ratio__)
+
+$$
+\log \left[ \frac{p(x)}{1 - p(x)} \right] = \beta_0 + \beta_1 x_1 + \cdots + \beta_p x_p
+$$
+
+. . .
+
+meaning
+
+$$p(x) = \frac{e^{\beta_0 + \beta_1 x_1 + \cdots + \beta_p x_p}}{1 + e^{\beta_0 + \beta_1 x_1 + \cdots + \beta_p x_p}}$$
+
+
+## [Multinomial logistic regression](https://en.wikipedia.org/wiki/Multinomial_logistic_regression)
+
+Extend logistic regression to $K$ classes (via the [softmax function](https://en.wikipedia.org/wiki/Softmax_function)):
+
+
+$$P(Y=k^* \mid X=x)=\frac{e^{\beta_{0 k^*}+\beta_{1 k^*} x_{1}+\cdots+\beta_{p k^*} x_{p}}}{\sum_{k=1}^{K} e^{\beta_{0 k}+\beta_{1 k} x_{1}+\cdots+\beta_{p k} x_{p}}}$$
+
+. . .
+
+Estimate coefficients for $K - 1$ classes __relative to reference class__
+
+For example, let $K$ be the reference then we use $K - 1$ logit transformations
+  
+Notation: $\boldsymbol{\beta}$ for vector of coefficients and $\mathbf{X}$ for matrix of predictors
+  
+$$\begin{array}{c}
+\log \Big( \frac{P(Y = 1 \ \mid \ \mathbf{X})}{P(Y=K \ \mid \ \mathbf{X})} \Big) = \boldsymbol{\beta}_{1} \cdot \mathbf{X}  \\
+\log \Big( \frac{P(Y=2 \ \mid \ \mathbf{X})}{P(Y=K \ \mid \ \mathbf{X})} \Big) =\boldsymbol{\beta}_{2} \cdot \mathbf{X} \\
+\vdots \\
+\log \Big( \frac{P(Y=K-1 \ \mid \ \mathbf{X})}{P(Y=K \ \mid \ \mathbf{X})} \Big) =\boldsymbol{\beta}_{K-1} \cdot \mathbf{X}
+\end{array}$$
+
+---
+
+## [Multinomial logistic regression](https://en.wikipedia.org/wiki/Multinomial_logistic_regression) for the next scoring event
+
+$Y \in$ {touchdown, field goal, safety, no score, -safety, -field goal, -touchdown}
+
+$\mathbf{X} =$ {down, yards to go, yard line, ...} 
+
+. . .
+
+Model is specified with __six logit transformations__ relative to __no score__:
+
+$$\begin{array}{c}
+\log \left(\frac{P(Y = \text { touchdown } \mid \ \mathbf{X})}{P(Y = \text { no score } \mid \  \mathbf{X})}\right)=\mathbf{X} \cdot \boldsymbol{\beta}_{\text {touchdown }} \\
+\log \left(\frac{P(Y = \text { field goal } \mid \ \mathbf{X})}{P(Y=\text { no score } \mid \ \mathbf{X})}\right)=\mathbf{X} \cdot \boldsymbol{\beta}_{\text {field goal }}, \\
+\vdots & \\ \log \left(\frac{P(Y = -\text {touchdown } \mid \ \mathbf{X})}{P(Y = \text { no score } \mid \  \mathbf{X})}\right)=\mathbf{X} \cdot \boldsymbol{\beta}_{-\text {touchdown }},
+\end{array}$$
+
+. . .
+
+Output: predicted probability associated with each of the next scoring events for each play
+
+## Example
+
+NFL play-by-play dataset (2012-2022) with the next score (in a half) for each play
+
+Following steps provided by [`nflfastR`](https://github.com/nflverse/nflverse-pbp/blob/master/models/model_data.R), which follows the OG [`nflscrapR`](https://github.com/ryurko/nflscrapR-models/blob/master/R/init_models/init_ep_fg_models.R)
+
+```{r}
+nfl_pbp <- read_csv("https://github.com/36-SURE/36-SURE.github.io/raw/main/data/nfl_pbp.csv.gz")
+# glimpse(nfl_pbp)
+```
+
+```{r}
+# additional data prep
+nfl_pbp <- nfl_pbp |> 
+  # make No_Score the reference level
+  mutate(next_score_half = fct_relevel(next_score_half, "No_Score"),
+         log_ydstogo = log(ydstogo),
+         down = factor(down))
+```
+
+
+## Fitting a multinomial logistic regression model
+
+```{r}
+library(nnet)
+ep_model <- multinom(next_score_half ~ half_seconds_remaining + yardline_100 + down + log_ydstogo + 
+                       log_ydstogo * down + yardline_100 * down, 
+                     data = nfl_pbp, maxit = 300)
+# maxit = 300: provide a sufficient number of steps for model fitting
+# summary(ep_model)
+```
+
+In the summary, notice the usual type of output, including coefficient estimates for every next scoring event, except for the reference level `No_Score`
+
+## Obtain probabilities for each categories
+
+```{r}
+library(broom)
+event_prob <- ep_model |> 
+  predict(newdata = nfl_pbp, type = "probs") |> 
+  as_tibble() |> 
+  mutate(ep = Touchdown * 7 + Field_Goal * 3 + Safety * 2 + Opp_Touchdown * -7 + Opp_Field_Goal * -3 + Opp_Safety * -2)
+event_prob
+```
+
+## Models in production
+
+*   It’s naive to assess the model on the training data it was learned on 
+
+. . .
+
+*   How is our model going to be used in practice?
+
+. . .
+
+*   The model itself will be a functional tool that can be applied to new observations without the need to retrain (for a considerable amount of time)
+
+    *   e.g., built an expected points model and want to use it new season
+    
+. . .    
+    
+*   Constant retraining is unnecessary and will become computationally burdensome
+
+. . .
+
+*   Ultimate goal: have a model that generalizes well to new data
+
+## Review: $k$-fold cross-validation
+
+* Randomly split data into $K$ equal-sized folds (i.e., subsets of data)
+
+. . .
+
+* Then for each fold $k$ in 1 to $K$:
+
+  *   Train the model on data excluding observations in fold $k$
+
+  *   Generate predictions on holdout data in fold k
+
+  *   (Optional) Compute some performance measure for fold $k$ predictions (e.g., RMSE, accuracy)
+  
+. . .
+
+* Aggregate holdout predictions to evaluate model performance
+
+. . .
+
+* (Optional) Aggregate performance measure across $K$ folds
+
+  *   e.g., compute average RMSE, including standard error for CV estimate
+  
+. . .  
+
+Takeaway: We can assess our model performance using anything we want with cross-validation
+
+## Review: calibration (for classification)
+
+Key idea: For a classifier to be calibrated, the actual probabilities should match the predicted probabilities
+
+. . .
+
+Process
+
+*   Bin the data according to predicted probabilities from model
+
+    *   e.g., [0, 0.1], (0.1, 0.2], ..., (0.9, 1]
+
+. . .    
+
+*   For each bin, compute proportion of observations whose class is the positive class
+
+. . .
+
+*   Plot observed proportions against the predicted probabilities bin midpoints    
+
+. . .
+
+Visualization: calibration curves (or reliability diagrams)
+    
+
+## Cross-validation calibration
+
+*   Randomly split data into $K$ equal-sized folds (i.e., subsets of data)
+
+. . .
+
+*   Then for each fold $k$ in 1 to $K$:
+
+    *   Train a classifier on data excluding observations in fold $k$
+
+    *   Generate predicted probabilities on holdout data in fold $k$
+    
+. . .    
+
+*   Aggregate holdout probabilities to create calibration plot
+
+. . .
+
+*   Alternatively: Create calibration plot for each holdout fold separately
+
+    *   Could average across bin calibration estimates<br>(though, standard errors might be messed up)
+
+
+## Cross-validation for next scoring event model
+
+* Can we randomly split data into $K$ equal-sized folds?
+
+. . .
+
+* Why not? Observations are correlated (at the play-level)
+
+. . .
+
+* For model evaluation purposes, we cannot randomly assign plays to different training and test folds
+
+. . .
+
+* Alternative ideas? Randomly assign game-drives, game-halves, games, weeks
+
+. . .
+
+* Another idea that avoids randomness: leave-one-season-out cross validation
+
+## Leave-one-season-out calibration
+
+* Since the model outputs probability estimates, use out-of-sample calibration to evaluate the model
+
+* Assess how well the model is calibrated for each scoring event
+
+```{r}
+ep_cv <- function(s) {
+  
+  test <- nfl_pbp |> filter(season == s)
+  train <- nfl_pbp |> filter(season != s)
+
+  ep_model <- multinom(next_score_half ~ half_seconds_remaining + yardline_100 + down + 
+                         log_ydstogo + log_ydstogo * down + yardline_100 * down, 
+                       data = train, maxit = 300)
+  ep_out <- ep_model |> 
+    predict(newdata = test, type = "probs") |> 
+    as_tibble() |> 
+    mutate(next_score_half = test$next_score_half,
+           season = s)
+  return(ep_out)
+}
+
+seasons <- unique(nfl_pbp$season)
+ep_cv_calibration <- seasons |> 
+  map(ep_cv) |> 
+  bind_rows()
+```
+
+## Leave-one-season-out calibration
+
+```{r}
+#| eval: false
+ep_cv_calibration |> 
+  pivot_longer(No_Score:Touchdown,
+               names_to = "event",
+               values_to = "pred_prob") |>
+  mutate(bin_pred_prob = round(pred_prob / 0.05) * 0.05) |> 
+  group_by(event, bin_pred_prob) |> 
+  summarize(n_plays = n(), 
+            n_events = length(which(next_score_half == event)),
+            bin_actual_prob = n_events / n_plays,
+            bin_se = sqrt((bin_actual_prob * (1 - bin_actual_prob)) / n_plays)) |>
+  ungroup() |> 
+  mutate(bin_upper = pmin(bin_actual_prob + 2 * bin_se, 1),
+         bin_lower = pmax(bin_actual_prob - 2 * bin_se, 0)) |> 
+  mutate(event = fct_relevel(event, "Opp_Safety", "Opp_Field_Goal", "Opp_Touchdown", 
+                             "No_Score", "Safety", "Field_Goal", "Touchdown")) |> 
+  ggplot(aes(x = bin_pred_prob, y = bin_actual_prob)) +
+  geom_abline(slope = 1, intercept = 0, color = "black", linetype = "dashed") +
+  geom_point() +
+  geom_errorbar(aes(ymin = bin_lower, ymax = bin_upper)) +
+  expand_limits(x = c(0, 1), y = c(0, 1)) +
+  facet_wrap(~ event, ncol = 4)
+```
+
+## Leave-one-season-out calibration
+
+```{r}
+#| echo: false
+ggplot2::theme_set(ggplot2::theme_light(base_size = 24))
+```
+
+
+```{r}
+#| echo: false
+#| fig-width: 20
+ep_cv_calibration |> 
+  pivot_longer(No_Score:Touchdown,
+               names_to = "event",
+               values_to = "pred_prob") |>
+  mutate(bin_pred_prob = round(pred_prob / 0.05) * 0.05) |> 
+  group_by(event, bin_pred_prob) |> 
+  summarize(n_plays = n(), 
+            n_events = length(which(next_score_half == event)),
+            bin_actual_prob = n_events / n_plays,
+            bin_se = sqrt((bin_actual_prob * (1 - bin_actual_prob)) / n_plays)) |>
+  ungroup() |> 
+  mutate(bin_upper = pmin(bin_actual_prob + 2 * bin_se, 1),
+         bin_lower = pmax(bin_actual_prob - 2 * bin_se, 0)) |> 
+  mutate(event = fct_relevel(event, "Opp_Safety", "Opp_Field_Goal", "Opp_Touchdown", 
+                             "No_Score", "Safety", "Field_Goal", "Touchdown")) |> 
+  ggplot(aes(x = bin_pred_prob, y = bin_actual_prob)) +
+  geom_abline(slope = 1, intercept = 0, color = "black", linetype = "dashed") +
+  geom_point() +
+  geom_errorbar(aes(ymin = bin_lower, ymax = bin_upper)) +
+  expand_limits(x = c(0, 1), y = c(0, 1)) +
+  facet_wrap(~ event, ncol = 4)
+```
+
+
+## Player and team evaluations
+
+*   Expected points added (EPA): $EP_{end} - EP_{start}$
+
+*   Other common measures
+
+    *   Total EPA (for both offense and defense)
+    
+    *   EPA per play
+    
+    *   Success rate: fraction of plays with positive EPA
+    
+    
+## Multinomial classification with XGBoost
+
+Note: XGBoost requires the multinomial categories to be numeric starting at 0
+
+```{r}
+library(xgboost)  
+nfl_pbp <- read_csv("https://github.com/36-SURE/36-SURE.github.io/raw/main/data/nfl_pbp.csv.gz") |> 
+  mutate(next_score_half = fct_relevel(next_score_half, 
+                                       "No_Score", "Safety", "Field_Goal", "Touchdown",
+                                       "Opp_Safety", "Opp_Field_Goal", "Opp_Touchdown"),
+         next_score_label = as.numeric(next_score_half) - 1) 
+```
+
+## Leave-one-season-out cross-validation
+
+```{r}
+ep_xg_cv <- function(s) {
+  test <- nfl_pbp |> filter(season == s)
+  train <- nfl_pbp |> filter(season != s)
+  x_test <- test |> select(half_seconds_remaining, yardline_100, down, ydstogo) |> as.matrix()
+  x_train <- train |> select(half_seconds_remaining, yardline_100, down, ydstogo) |> as.matrix()
+  ep_xg <- xgboost(data = x_train, label = train$next_score_label, 
+                   nrounds = 100, max_depth = 3, eta = 0.3, gamma = 0, 
+                   colsample_bytree = 1, min_child_weight = 1, subsample = 1, nthread = 1, 
+                   objective = 'multi:softprob', num_class = 7, eval_metric = 'mlogloss', verbose = 0)
+  ep_xg_pred <- ep_xg |> 
+      predict(x_test) |> 
+      matrix(ncol = 7, byrow = TRUE) |> 
+      as_tibble()
+  colnames(ep_xg_pred) <- c("No_Score", "Safety", "Field_Goal", "Touchdown", 
+                            "Opp_Safety", "Opp_Field_Goal", "Opp_Touchdown")
+  ep_xg_pred <- ep_xg_pred |> 
+    mutate(next_score_half = test$next_score_half, 
+           season = s)
+  return(ep_xg_pred)
+}
+```
+
+```{r}
+seasons <- unique(nfl_pbp$season)
+ep_xg_cv_pred <- seasons |> 
+  map(ep_xg_cv) |> 
+  bind_rows()
+```
+
+## Model calibration
+
+```{r}
+#| eval: false
+#| fig-width: 20
+ep_xg_cv_pred |>
+  pivot_longer(No_Score:Opp_Touchdown,
+               names_to = "event",
+               values_to = "pred_prob") |>
+  mutate(bin_pred_prob = round(pred_prob / 0.05) * 0.05) |>
+  group_by(event, bin_pred_prob) |>
+  summarize(n_plays = n(),
+            n_events = length(which(next_score_half == event)),
+            bin_actual_prob = n_events / n_plays,
+            bin_se = sqrt((bin_actual_prob * (1 - bin_actual_prob)) / n_plays)) |>
+  ungroup() |>
+  mutate(bin_upper = pmin(bin_actual_prob + 2 * bin_se, 1),
+         bin_lower = pmax(bin_actual_prob - 2 * bin_se, 0)) |>
+  mutate(event = fct_relevel(event, "Opp_Safety", "Opp_Field_Goal", "Opp_Touchdown",
+                             "No_Score", "Safety", "Field_Goal", "Touchdown")) |>
+  ggplot(aes(x = bin_pred_prob, y = bin_actual_prob)) +
+  geom_abline(slope = 1, intercept = 0, color = "black", linetype = "dashed") +
+  geom_point() +
+  geom_errorbar(aes(ymin = bin_lower, ymax = bin_upper)) +
+  expand_limits(x = c(0, 1), y = c(0, 1)) +
+  facet_wrap(~ event, ncol = 4)
+```
+
+## Model calibration
+
+```{r}
+#| echo: false
+#| fig-width: 20
+ep_xg_cv_pred |>
+  pivot_longer(No_Score:Opp_Touchdown,
+               names_to = "event",
+               values_to = "pred_prob") |>
+  mutate(bin_pred_prob = round(pred_prob / 0.05) * 0.05) |>
+  group_by(event, bin_pred_prob) |>
+  summarize(n_plays = n(),
+            n_events = length(which(next_score_half == event)),
+            bin_actual_prob = n_events / n_plays,
+            bin_se = sqrt((bin_actual_prob * (1 - bin_actual_prob)) / n_plays)) |>
+  ungroup() |>
+  mutate(bin_upper = pmin(bin_actual_prob + 2 * bin_se, 1),
+         bin_lower = pmax(bin_actual_prob - 2 * bin_se, 0)) |>
+  mutate(event = fct_relevel(event, "Opp_Safety", "Opp_Field_Goal", "Opp_Touchdown",
+                             "No_Score", "Safety", "Field_Goal", "Touchdown")) |>
+  ggplot(aes(x = bin_pred_prob, y = bin_actual_prob)) +
+  geom_abline(slope = 1, intercept = 0, color = "black", linetype = "dashed") +
+  geom_point() +
+  geom_errorbar(aes(ymin = bin_lower, ymax = bin_upper)) +
+  expand_limits(x = c(0, 1), y = c(0, 1)) +
+  facet_wrap(~ event, ncol = 4)
+```
+

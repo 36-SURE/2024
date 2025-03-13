@@ -1,0 +1,571 @@
+---
+title: "Supervised learning: the tradeoffs"
+author: "<br>SURE 2024<br><br>Department of Statistics & Data Science<br>Carnegie Mellon University"
+footer:  "[36-SURE.github.io](https://36-sure.github.io)"
+format:
+  revealjs:
+    theme: theme.scss
+    chalkboard: true
+    smaller: true
+    slide-number: c/t
+    code-line-numbers: false
+    linestretch: 1.25
+    html-math-method:
+      method: mathjax
+      url: "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+---
+
+```{r}
+#| include: false
+knitr::opts_chunk$set(
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  fig.align = "center",
+  fig.height = 9
+)
+ggplot2::theme_set(ggplot2::theme_light(base_size = 20))
+```
+
+# Background
+
+## Concepts that hopefully you'll be able to distinguish
+
+* Supervised vs. unsupervised learning
+* Classification vs. regression
+* Classification vs. clustering
+* Explanatory vs. response variable
+* Inference vs. prediction
+* Flexibility-interpretability tradeoff
+* Bias-variance tradeoff
+* Model assessment vs. model selection
+* Parametric vs. nonparametric models
+
+## Statistical learning
+
+> Statistical learning refers to a set of tools for making sense of complex
+datasets. --- [Preface of ISLR](https://www.statlearning.com/)
+
+. . .
+
+General setup: Given a dataset of $p$ variables (columns) and $n$ observations (rows) $x_1,\dots,x_n$.
+
+For observation $i$, $$x_{i1},x_{i2},\ldots,x_{ip} \sim P \,,$$ where $P$ is a $p$-dimensional distribution that we might not know much about *a priori*
+
+## Supervised learning
+
+* Response variable $Y$ in one of the $p$ variables (columns)
+
+* The remaining $p-1$ variables are predictor measurements $X$
+
+  *   Regression: $Y$ is quantitative
+  
+  *   Classification: $Y$ is categorical
+  
+. . .
+
+
+__Goal__: uncover associations between a set of __predictor__ (__independent__ / __explanatory__) variables / features and a single __response__ (or __dependent__) variable
+
+*   Accurately predict unseen test cases
+
+*   Understand which features  affect the response (and how)
+
+*   Assess the quality of our predictions and inferences
+
+## They're all the same
+
+<center>
+
+![](/images/covariates.png){width="600"}
+
+</center>
+
+
+<!-- . . . -->
+
+<!-- * If we are using one or more variables to help us understand or predict values of another variable, -->
+
+<!--   * The variable that is the outcome of interest, the one we’re trying to predict, is called the response variable (also called dependent variable) -->
+
+<!--   *   The variable whose relationship to the response is being studied is called the explanatory variable (or independent -->
+<!-- variable) -->
+
+<!-- Note: each of the explanatory and response variables can either be quantitative or categorical -->
+
+## Supervised learning
+
+Examples
+
+* Identify the risk factors for prostate cancer
+
+. . .
+
+* Predict whether someone will have a heart attack based on demographic, diet, and clinical measurements
+
+. . .
+
+* Predict a player's batting average in year $t+1$ using their batting average in year $t$ and uncover meaningful relationships between other measurements and batting average in year $t+1$
+
+. . .
+
+* Given NFL player tracking data which contain 2D coordinates of every player on the field at every tenth of the second, predict how far a ball-carrier will go at any given moment within a play
+
+
+
+## Examples of statistical learning methods / algorithms
+
+__You are probably already familiar with statistical learning__ - even if you did not know what the phrase meant before
+
+
+. . .
+
+Examples of statistical learning algorithms include:
+
+- Generalized linear models (GLMs) and penalized versions (lasso, ridge, elastic net)
+
+- Smoothing splines, generalized additive models (GAMs)
+
+- Decision trees and its variants (e.g., random forests, boosting)
+
+- Neural networks
+
+. . .
+
+Two main types of problems
+
+- __Regression__ models: estimate _average_ value of response (i.e. the response is quantitative)
+
+- __Classification__ models: determine _the most likely_ class of a set of discrete response variable classes (i.e. the response is categorical)
+
+
+## Which method should I use in my analysis?
+
+. . .
+
+__IT DEPENDS__ - the big picture: __inference__ vs __prediction__
+
+
+Let $Y$ be the response variable, and $X$ be the predictors, then the __learned__ model will take the form:
+
+$$
+\hat{Y}=\hat{f}(X)
+$$
+
+. . .
+
+- Care about the details of $\hat{f}(X)$? $\longrightarrow$ inference
+
+- Fine with treating $\hat{f}(X)$ as a obscure/mystical machine? $\longrightarrow$ prediction
+
+
+. . .
+
+Any algorithm can be used for prediction, however options are limited for inference
+
+
+_Active area of research on using more mystical models for statistical inference_
+
+
+# The tradeoffs
+
+## Some tradeoffs
+
+* Prediction accuracy vs interpretability
+
+  * Linear models are easy to interpret; boosted trees are not
+  
+. . .
+  
+* Good fit vs overfit or underfit
+
+  * How do we know when the fit is just right?
+  
+. . .
+  
+* Parsimony versus black-box
+
+  * We often prefer a simpler model involving fewer variables over a black-box involving more (or all) predictors
+
+## Model flexibility vs interpretability
+
+Generally speaking: __tradeoff__ between a model's _flexibility_ (i.e. how "wiggly" it is) and how __interpretable__ it is
+
+- The simpler parametric form of the model, the easier it is to interpret
+
+- Hence why __linear regression__ is popular in practice
+
+```{r out.width='50%', echo = FALSE, fig.align='center'}
+knitr::include_graphics("http://www.stat.cmu.edu/~pfreeman/flexibility.png")
+```
+
+::: aside
+[[ISLR Figure 2.7](https://www.statlearning.com/)]
+:::
+
+
+
+## Model flexibility vs interpretability
+
+```{r out.width='50%', echo = FALSE, fig.align='center'}
+knitr::include_graphics("http://www.stat.cmu.edu/~pfreeman/flexibility.png")
+```
+
+- __Parametric__ models, for which we can write down a mathematical expression for $f(X)$ __before observing the data__, _a priori_ (e.g. linear regression), __are inherently less flexible__
+
+
+. . .
+
+- __Nonparametric__ models, in which $f(X)$ is __estimated from the data__ (e.g. kernel regression)
+
+
+
+## Model flexibility vs interpretability
+
+```{r out.width='50%', echo = FALSE, fig.align='center'}
+knitr::include_graphics("http://www.stat.cmu.edu/~pfreeman/flexibility.png")
+```
+
+- If your goal is prediction, your model can be as arbitrarily flexible as it needs to be
+
+- We'll discuss how to estimate the optimal amount of flexibility shortly...
+
+
+## Looks about right...
+
+
+```{r out.width='90%', echo = FALSE, fig.align='center'}
+knitr::include_graphics("https://66.media.tumblr.com/c4886c7b12f2a9a7d81cba3e8d8f1d00/bc9f1aa7fb6adf6d-7c/s1280x1920/a01569c35bebdac425baf4ed3360f1481580d4d6.jpg")
+```
+
+
+## Model assessment vs selection, what's the difference?
+
+. . .
+
+__Model assessment__:
+
+- __evaluating how well a learned model performs__, via the use of a single-number metric
+
+
+. . .
+
+__Model selection__:
+
+- selecting the best model from a suite of learned models (e.g., linear regression, random forest, etc.)
+
+
+
+## Model __flexibility__ ([ISLR Figure 2.9](https://www.statlearning.com/))
+
+```{r out.width='60%', echo = FALSE, fig.align='center'}
+knitr::include_graphics("http://www.stat.cmu.edu/~pfreeman/Flexibility.png")
+```
+
+- Left panel: intuitive notion of the meaning of model flexibility
+
+- Data are generated from a smoothly varying non-linear model (shown in black), with random noise added:
+$$
+Y = f(X) + \epsilon
+$$
+
+
+
+## Model __flexibility__
+
+```{r out.width='60%', echo = FALSE, fig.align='center'}
+knitr::include_graphics("http://www.stat.cmu.edu/~pfreeman/Flexibility.png")
+```
+
+Orange line: an inflexible, fully parametrized model (simple linear regression)
+
+
+. . .
+
+- __Cannot__ provide a good estimate of $f(X)$
+
+
+. . .
+
+- Cannot __overfit__ by modeling the noisy deviations of the data from $f(X)$
+
+
+
+
+## Model __flexibility__
+
+```{r out.width='60%', echo = FALSE, fig.align='center'}
+knitr::include_graphics("http://www.stat.cmu.edu/~pfreeman/Flexibility.png")
+```
+
+
+Green line: an overly flexible, nonparametric model 
+
+
+. . .
+
+- __It can__ provide a good estimate of $f(X)$ 
+
+. . .
+
+-  ... __BUT__ it goes too far and overfits by modeling the noise
+
+
+. . .
+
+__This is NOT generalizable__: bad job of predicting response given new data NOT used in learning the model
+
+
+
+## So... how do we deal with flexibility?
+
+__GOAL__: We want to learn a statistical model that provides a good estimate of $f(X)$ __without overfitting__
+
+
+. . .
+
+There are two common approaches:
+
+- We can __split the data into two groups__:
+
+  - __training__ data: data used to train models, 
+  
+  - __test__ data: data used to test them
+  
+  - By assessing models using "held-out" test set data, we act to ensure that we get a __generalizable(!)__ estimate of $f(X)$
+
+
+. . .
+
+- We can __repeat data splitting $k$ times__:
+
+  - Each observation is placed in the "held-out" / test data exactly once
+  
+  - This is called __k-fold cross validation__ (typically set $k$ to 5 or 10)
+
+
+. . .
+
+$k$-fold cross validation is the preferred approach, but the tradeoff is that CV analyses take ${\sim}k$ times longer than analyses that utilize data splitting
+
+
+
+## Model assessment
+
+```{r out.width='60%', echo = FALSE, fig.align='center'}
+knitr::include_graphics("http://www.stat.cmu.edu/~pfreeman/Flexibility.png")
+```
+
+- Right panel shows __a metric of model assessment__, the mean squared error (MSE) as a function of flexibility for both a training and test datasets
+
+
+. . .
+
+- Training error (gray line) __decreases as  flexibility increases__
+
+. . .
+
+- Test error (red line) decreases while flexibility increases __until__ the point a good estimate of $f(X)$ is reached, and then it __increases as it overfits to the training data__
+
+
+
+## Model assessment metrics
+
+__Loss function__ (aka _objective_ or _cost_ function) is a metric that represents __the quality of fit of a model__
+
+
+. . .
+
+For regression we typically use __mean squared error (MSE)__
+- quadratic loss: squared differences between model predictions $\hat{f}(X)$ and observed data $Y$
+
+$$\text{MSE} = \frac{1}{n} \sum_i^n (Y_i - \hat{f}(X_i))^2$$
+
+
+. . .
+
+For classification, the situation is not quite so clear-cut
+
+- __misclassification rate__: percentage of predictions that are wrong
+
+- __area under the ROC curve (AUC)__
+
+. . .
+
+- interpretation can be affected by __class imbalance__: 
+
+  - if two classes are equally represented in a dataset, a misclassification rate of 2% is good
+  
+  - but if one class comprises 99% of the data, that 2% is no longer such a good result...
+
+
+
+## Back to model selection
+
+__Model selection__: picking the best model from a suite of possible models 
+
+- Example: Picking the best regression model based on __MSE__, or best classification model based on __misclassification rate__
+
+
+. . .
+
+Two things to keep in mind:
+
+1. __Ensure an apples-to-apples comparison of metrics__
+
+  - every model should be learned using __the same training and test data__
+  
+  - Do not resample the data between the time when you, e.g., perform linear regression and vs you perform random forest
+  
+. . .
+
+2. __An assessment metric is a random variable__, i.e., if you choose different data to be in your training set, the metric will be different.
+
+. . .
+
+For regression, a third point should be kept in mind: __a metric like the MSE is unit-dependent__
+
+- an MSE of 0.001 in one analysis context is not necessarily better or worse than an MSE of 100 in another context
+
+
+
+## An example __true__ model
+
+```{r fig.height=6,fig.width=6,fig.align="center",echo = FALSE}
+library(ggplot2)
+x.true  = seq(-2,4,0.01)
+df.true = data.frame("x"=x.true,"y"=x.true^2)
+ggplot(data=df.true,mapping=aes(x=x,y=y)) + geom_line(linetype="dashed",color="red",size=1.5) + ylim(-2,18)
+```
+
+
+## The repeated experiments...
+
+```{r, fig.width=14, fig.height = 6, fig.align="center", echo = FALSE, warning = FALSE}
+df = data.frame()
+for ( ii in 1:4 ) {
+  set.seed(101+ii)
+  x = runif(100,min=-2,max=4)
+  y = x^2 + rnorm(100,sd=1.5)
+  df.tmp = data.frame("exp"=rep(ii,100),x,y)
+  df = rbind(df,df.tmp)
+}
+df$exp = factor(df$exp)
+ggplot(data=df,mapping=aes(x=x,y=y)) + geom_point(size=0.5) + 
+  geom_line(data=df.true,mapping=aes(x=x,y=y),linetype="dashed",color="red",size=1.5) + xlim(-2,4) + ylim(-2,18) + 
+  facet_wrap(~exp,ncol = 4)
+```
+
+
+
+## The linear regression fits
+
+```{r,fig.align="center", echo = FALSE}
+df.lm = data.frame()
+for ( ii in 1:4 ) {
+  w = which(df$exp==ii)
+  x = df$x[w]
+  y = df$y[w]
+  out.lm = lm(y~x)
+  y.lm = coef(out.lm)[1] + coef(out.lm)[2]*df.true$x
+  df.tmp = data.frame("exp"=rep(ii,nrow(df.true)),"x"=df.true$x,"y"=y.lm)
+  df.lm = rbind(df.lm,df.tmp)
+}
+```
+
+
+```{r, fig.width=14, fig.height = 6,fig.align="center", echo = FALSE, warning = FALSE}
+df.lm$exp = factor(df.lm$exp)
+ggplot(data=df,mapping=aes(x=x,y=y)) + geom_point(size=0.5) + 
+  geom_line(data=df.lm,mapping=aes(x=x,y=y),linetype="dashed",color="red",size=1.5) + xlim(-2,4) + ylim(-2,18) +
+  facet_wrap(~exp,ncol = 4)
+```
+
+Look at the plots. For any given value of $x$:
+
+- The *average* estimated $y$ value is offset from the truth (__high bias__)
+- The dispersion (variance) in the estimated $y$ values is relatively small (__low variance__)
+
+
+
+## The spline fits
+
+```{r, echo = FALSE}
+if ( require(splines) == FALSE ) {
+  install.packages("splines",repos="https://cloud.r-project.org")
+  library(splines)
+}
+df.spline = data.frame()
+for ( ii in 1:4 ) {
+  w = which(df$exp==ii)
+  x = df$x[w]
+  y = df$y[w]
+  out.spline = lm(y~bs(x,knots=seq(-1.5,3.5,by=0.2)))
+  y.spline = predict(out.spline)
+  o = order(x)
+  df.tmp = data.frame("exp"=rep(ii,length(x)),"x"=x[o],"y"=y.spline[o])
+  df.spline = rbind(df.spline,df.tmp)
+}
+```
+
+```{r, fig.width=14, fig.height = 6,fig.align="center", echo = FALSE, warning = FALSE}
+df.spline$exp = factor(df.spline$exp)
+ggplot(data=df,mapping=aes(x=x,y=y)) + geom_point(size=0.5) + 
+  geom_line(data=df.spline,mapping=aes(x=x,y=y),linetype="dashed",color="red",size=1.5) + xlim(-2,4) + ylim(-2,18) +
+  facet_wrap(~exp,ncol = 4)
+```
+
+Look at the plots. For any given value of $x$:
+
+. . .
+
+- The *average* estimated $y$ value approximately matches the truth (__low bias__)
+- The dispersion (variance) in the estimated $y$ values is relatively large (__high variance__)
+
+
+
+## Bias-variance tradeoff
+
+"Best" model minimizes the test-set MSE, where the __true__ MSE can be decomposed into ${\rm MSE} = {\rm (Bias)}^2 + {\rm Variance}$
+
+. . .
+
+```{r out.width='60%', echo = FALSE, fig.align='center'}
+knitr::include_graphics("http://www.stat.cmu.edu/~pfreeman/Flexibility.png")
+```
+
+Towards the left: high bias, low variance. Towards the right: low bias, high variance. 
+
+__Optimal amount of flexibility lies somewhere in the middle__ ("just the right amount" --- [*Goldilocks principle*](https://en.wikipedia.org/wiki/Goldilocks_principle))
+
+## "The sweet spot"
+
+<blockquote class="twitter-tweet"><p lang="en" dir="ltr">Remember, when building predictive models, try to find the sweet spot between bias and variance. <a href="https://twitter.com/hashtag/babybear?src=hash&amp;ref_src=twsrc%5Etfw">#babybear</a></p>&mdash; Dr. G. J. Matthews (@StatsClass) <a href="https://twitter.com/StatsClass/status/1037808217076760576?ref_src=twsrc%5Etfw">September 6, 2018</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+
+## Principle of parsimony (Occam's razor)
+
+"Numquam ponenda est pluralitas sine necessitate" (plurality must never be posited without necessity)
+
+From ISLR:
+
+> When faced with new data modeling and prediction problems, it's tempting to always go for the trendy new methods. Often they give extremely impressive results, especially when the datasets are very large and can support the fitting of high-dimensional nonlinear models. However, if we can produce models with the simpler tools that perform as well, they are likely to be easier to fit and understand, and potentially less fragile than the more complex approaches. Wherever possible, it makes sense to try the simpler models as well, and then make a choice based on the performance/complexity tradeoff.
+
+In short: "When faced with several methods that give roughly equivalent performance, pick the simplest."
+
+## The curse of dimensionality
+
+The more features, the merrier?... Not quite
+
+*   Adding additional **signal** features that are truly associated with the response will improve the ftted model
+
+    *   Reduction in test set error
+    
+*   Adding noise features that are not truly associated with the response will lead to a deterioration in the model
+
+    *   Increase in test set error
+    
+**Noise features increase the dimensionality of the problem, increasing the risk of overfitting**
+
+## Check out this song
+
+{{< video https://youtu.be/pZTLFu79UbY width="800" height="600" >}}

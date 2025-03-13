@@ -1,0 +1,700 @@
+---
+title: "Unsupervised learning: Gaussian mixture models"
+author: "<br>SURE 2024<br><br>Department of Statistics & Data Science<br>Carnegie Mellon University"
+footer:  "[36-SURE.github.io](https://36-sure.github.io)"
+format:
+  revealjs:
+    theme: theme.scss
+    chalkboard: true
+    smaller: true
+    slide-number: c/t
+    code-line-numbers: false
+    linestretch: 1.25
+    html-math-method:
+      method: mathjax
+      url: "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+---
+
+```{r}
+#| include: false
+knitr::opts_chunk$set(
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  fig.align = "center",
+  fig.height = 9
+)
+library(tidyverse)
+ggplot2::theme_set(ggplot2::theme_light(base_size = 20))
+```
+
+# Background
+
+## Previously: clustering
+
+* Goal: partition $n$ data points into $K$ subgroups, where roughly points within group are more "similar" than points between groups
+
+* Previous methods: __$k$-means clustering __ and __hierarchical clustering__
+
+. . .
+
+* **Classification vs clustering**
+
+**Classification**
+
+*   We are given labeled (categorical) data
+
+*   Focus on generalization (i.e. we want to have a classifier that performs well on predicting new (test) data)
+
+. . .
+
+**Clustering**
+
+*   We are only given the points (with no labels)
+
+*   We want to find interesting subgroups/structure in the data
+
+
+## Previously: clustering
+
+- Previous methods: __$k$-means clustering __ and __hierarchical clustering__
+
+- Output __hard__ assignments, strictly assigning observations to only one cluster
+
+. . .
+
+- What about __soft__ assignments and __uncertainty__ in the clustering results?
+
+  - Assigns each observation a probability of belonging to a cluster
+
+  - Incorporate statistical modeling into clustering
+  
+. . .
+
+- We want to estimate the density of the observations in some way that allows us to extract clusters
+  
+## Motivating figure
+
+<br>
+
+```{r}
+#| echo: false
+knitr::include_graphics("https://miro.medium.com/v2/resize:fit:1100/format:webp/0*uQTamSp8hAcnJPl0.")
+```
+
+
+## Model-based clustering
+
+Key idea: data are considered as coming from a mixture of underlying probability distributions
+
+. . .
+
+Most popular method: Gaussian mixture model (GMM)
+
+*   Each observation is assumed to be distributed as one of $k$ multivariate normal distributions
+
+*   $k$ is the number of clusters (components)
+
+## Previously: kernel density estimation
+
+
+
+Kernel density estimator: $\displaystyle \hat{f}(x) = \frac{1}{n} \sum_{i=1}^n \frac{1}{h} K_h(x - x_i)$
+
+. . .
+
+::: columns
+::: {.column width="50%" style="text-align: left;"}
+
+* Smooth each data point into a small density bumps
+
+* Sum all these small bumps together to obtain the final density estimate
+
+Use __every observation__ when estimating the density for new points
+
+We want to estimate the density of the points in some way that allows us to extract clusters
+
+:::
+
+::: {.column width="50%" style="text-align: left;"}
+
+```{r}
+#| echo: false
+knitr::include_graphics("../images/kde-bumps.png")
+```
+
+:::
+:::
+
+## Mixture models
+
+*   Model the density as a mixture of distributions
+
+```{r}
+#| echo: false
+knitr::include_graphics("https://angusturner.github.io/assets/images/mixture.png")
+```
+
+## Mixture models
+
+Formally, $$\displaystyle f(x) = \sum_{k=1}^K \tau_k f_k(x)$$
+
+where 
+
+* $f_k$ are some distributions
+
+* $\tau_k \ge 0$ and $\sum_{k=1}^K \tau_k = 1$ are the mixture weights
+
+* $K$ is the number of mixture components (i.e. the number of clusters)
+
+
+## Mixture models
+
+This is a __data generating process__
+
+Imagine that each cluster (component) has a different distribution
+
+. . .
+
+Task: Generate a new observation (i.e. sample) from a mixture model
+
+. . .
+
+*   Choose a cluster by drawing $Z \in  \{1, \dots, K\}$, where $P(Z = k) = \tau_k$ 
+
+    *   i.e. $Z$ is a categorical latent variable indicating which cluster the new observation is from
+
+*   Generate an observation from the distribution $f_Z$ (corresponding to cluster $Z$)
+
+. . .
+
+Hence $\displaystyle f(x) = \sum_{k=1}^K P(Z = k) p (x \mid Z = k) = \sum_{k=1}^K \tau_k f_Z(x)$
+
+<!-- . . . -->
+
+<!-- 1. __Pick a distribution/component__ among our $K$ options by introducing a new variable $$z \sim \text{Multinomial} (\tau_1, \tau_2, \dots, \tau_k)$$ i.e. $z$ is a categorical latent variable indicating which component the new point is from -->
+
+<!-- . . . -->
+
+<!-- 2. __Generate an observation with that distribution/component__, i.e. $x \mid z \sim f_{z}$ -->
+
+
+<!-- . . . -->
+
+<!-- _So what do we use for each $f_k$?_ -->
+
+
+## Gaussian mixture models (GMMs)
+
+* Assume a __parametric mixture model__, with __parameters__ $\theta_k$ for the $k$th component $$f(x) = \sum_{k=1}^K \tau_k f_k(x; \theta_k)$$
+
+* Gaussian mixture models (GMMs) are perhaps the most popular mixture models
+
+. . .
+
+* Assume each component is [Gaussian (normal)](https://en.wikipedia.org/wiki/Normal_distribution), where the 1D case is
+
+$$f_k(x; \theta_k) = N(x; \mu_k, \sigma_k^2) = \frac{1}{\sqrt{2 \pi \sigma_k^2}}\text{exp} \left( -\frac{(x - \mu_k)^2}{2 \sigma_k^2} \right)$$
+
+with mean $\mu_k$ and variance $\sigma_k ^2$
+
+. . .
+
+* We need to estimate each $\{\tau_1, \dots, \tau_k\}$, $\{\mu_1, \dots, \mu_k\}$, $\{\sigma_1, \dots, \sigma_k\}$
+
+## Gaussian mixture models (GMMs)
+
+```{r}
+#| echo: false
+#| out-width: "60%"
+knitr::include_graphics("https://miro.medium.com/v2/resize:fit:1100/format:webp/0*uQTamSp8hAcnJPl0.")
+```
+
+Model $\tau_1, \tau_2, \tau_3$ and 
+
+$f_{\text{red}}(x) = N(\mu_{\text{red}}, \sigma^2_{\text{red}})$
+
+$f_{\text{blue}}(x) = N(\mu_{\text{blue}}, \sigma^2_{\text{blue}})$
+
+$f_{\text{green}}(x) = N(\mu_{\text{green}}, \sigma^2_{\text{green}})$
+
+## Estimating a mixture model
+
+What can we do to soft-cluster our data?
+
+. . .
+
+For an observation $x$, compute the weight for $x$ to belong to cluster $k$ for $k \in \{1, \dots, K\}$ $$ P(Z = k \mid X = x) = \frac{P(X = x \mid Z = k) P(Z = k)}{\sum_{j}P(X = x \mid Z = j) P(Z = j)} =\frac{\tau_{k} \ N(\mu_{k}, \sigma_{k}^{2})}{\sum_{j=1}^{K} \tau_{j} \ N(\mu_{j}, \sigma^2_{j})}$$
+
+(recall that $\displaystyle f(x) = \sum_{k=1}^K \tau_k \ N(\mu_k, \sigma^2_k)$)
+
+. . .
+
+How do we estimate the parameters of the mixture model (i.e. the $\tau_k, \mu_k, \sigma_k$)?
+
+. . .
+
+*   We don't know which component (i.e. the true labels) an observation actually belongs to 
+
+*   $Z$ is a latent variable (since the true cluster labels are not observed)
+
+*   This is known as the missing data or latent variable problems
+
+
+## Estimating a mixture model: maximum likelihood
+
+Likelihood function: how likely to observe data for given parameter values
+
+. . .
+
+Setup: Given observations $X_1, \dots, X_n$
+
+Task: Estimate the parameters of a mixture model
+
+. . .
+
+*   What if we know the true cluster labels $Z_1, \dots, Z_n$? We can just use maximum likelihood estimation and maximize $$L\{\left(\tau_k, \mu_k, \sigma^2_k \right)_{k=1}^K\} = \sum_{i=1}^n \log f(X_i, Z_i)$$ (just take data from each group, compute the fraction of points $\tau_k$, the mean $\mu_k$, and the variance $\sigma^2$)
+
+. . .
+
+*   In our case, since we do not know the cluster labels $Z_i$, we should try to maximize the (marginal) likelihood of the observed data
+
+$$\mathcal L\{\left(\tau_k, \mu_k, \sigma^2_k \right)_{k=1}^K\} = \sum_{i=1}^n \log f(X_i) = \sum_{i=1}^n \log \left[\sum_{k=1}^K f(X_i, k)\right]$$
+
+
+## Estimating a mixture model: EM algorithm
+
+[Expectation–maximization (EM) algorithm](https://en.wikipedia.org/wiki/Expectation%E2%80%93maximization_algorithm) is a method for (approximately) maximizing the (marginal) likelihood in the presence of missing data
+
+For a GMM:
+
+*   First, initialize the model parameters randomly
+
+*   Then, alternate between the following two steps (keep repeating until nothing changes)
+
+    *   **E-step**: compute the cluster memberships for each point
+    
+    *   **M-step**: recompute/update the parameters
+
+<!-- ## Let's pretend we only have one component... -->
+
+<!-- Set up: Given $n$ observations from a single normal distribution -->
+
+<!-- Task: Estimate the distribution parameters using the __likelihood function__ - the probability/density of observing the data given the parameters $$\mathcal{L}(\mu, \sigma \mid x_1, \dots, x_n) = f( x_1, \dots, x_n \mid \mu, \sigma) =  \prod_{i=1}^n \frac{1}{\sqrt{2\tau \sigma^2}}\text{exp } \left\{-\frac{(x_i - \mu)^2}{2 \sigma^2}\right\}$$ -->
+
+<!-- . . . -->
+
+<!-- Compute the __maximum likelihood estimates (MLEs)__ for $\mu$ and $\sigma$ -->
+
+<!-- - $\displaystyle \hat{\mu}_{\rm MLE} = \frac{1}{n} \sum_i^n x_i$, sample mean -->
+
+<!-- - $\displaystyle \hat{\sigma}_{\rm MLE} = \sqrt{\frac{1}{n}\sum_i^n (x_i - \mu)^2}$, sample standard deviation (plug in $\hat{\mu}_{\rm MLE}$) -->
+
+
+<!-- ## The problem with more than one component -->
+
+<!-- ::: columns -->
+<!-- ::: {.column width="50%" style="text-align: left;"} -->
+
+<!-- - __We don't know which component an observation belongs to__ -->
+
+<!-- - __IF WE DID KNOW__, then we could compute each component's MLEs as before -->
+
+<!-- - But we don't know because $z$ is a __latent variable__! So what about its distribution given the data? -->
+
+<!-- $\displaystyle P(z_i = k \mid x_i) = \frac{P(x_i \mid z_i = k) P(z_i = k)}{P(x_i)}$ -->
+
+<!-- $\displaystyle =\frac{\tau_{k} N\left(\mu_{k}, \sigma_{k}^{2}\right)}{\sum_{k=1}^{K} \tau_{k} N\left(\mu_{k}, \sigma_{k}\right)}$ -->
+
+<!-- - __But we do NOT know these parameters!__ -->
+
+<!-- ::: -->
+
+<!-- ::: {.column width="50%" style="text-align: left;"} -->
+<!-- ```{r init-sim-data, echo = FALSE, fig.align='center', fig.height=9} -->
+<!-- library(tidyverse) -->
+<!-- # mixture components -->
+<!-- mu_true <- c(5, 13) -->
+<!-- sigma_true <- c(1.5, 2) -->
+<!-- # determine Z_i -->
+<!-- z <- rbinom(500, 1, 0.75) -->
+<!-- # sample from mixture model -->
+<!-- x <- rnorm(10000, mean = mu_true[z + 1],  -->
+<!--            sd = sigma_true[z + 1]) -->
+
+<!-- tibble(xvar = x) |> -->
+<!--   ggplot(aes(x = xvar)) + -->
+<!--   geom_histogram(color = "black", -->
+<!--                  fill = "darkblue", -->
+<!--                  alpha = 0.3) + -->
+<!--   labs(x = "Simulated variable", -->
+<!--        y = "Count") -->
+<!-- ``` -->
+
+<!-- ::: -->
+<!-- ::: -->
+
+
+## Expectation-maximization (EM) algorithm
+
+Alternate between the following:
+
+- _pretend_ to know the probability each observation belongs to each group, to estimate the parameters of the components
+
+. . .
+
+- _pretend_ to know the parameters of the components, to estimate the probability each observation belong to each group
+
+. . .
+
+1. Start with initial guesses about $\tau_1, \dots, \tau_k$, $\mu_1, \dots, \mu_k$, $\sigma_1, \dots, \sigma_k$
+
+2. Repeat until nothing changes:
+
+
+. . .
+
+- **E-step**: calculate $\hat{z}_{ik}$, the weight for observation $i$ belonging to cluster $k$
+
+- **M-step**: update parameter estimates with __weighted__ MLE using $\hat{z}_{ik}$
+
+## Is this familiar?
+
+. . .
+
+*   In GMMs, we're essentially guessing the latent variables $Z_i$ and pretending to know the parameters to perform maximum likelihood estimation
+
+. . .
+
+::: columns
+::: {.column width="50%" style="text-align: left;"}
+
+*   This resembles the $k$-means algorithm!
+
+    *   The cluster centroids are chosen at random, and then recomputed/updated
+    
+    *   This is repeated until the cluster assignments stop changing
+    
+:::
+
+::: {.column width="50%" style="text-align: left;"}
+
+<center>    
+<iframe src="https://giphy.com/embed/kd9BlRovbPOykLBMqX" width="270" height="270" frameBorder="0" class="giphy-embed" allowFullScreen></iframe>
+</center>
+
+:::
+:::
+    
+. . .
+
+*   Instead of assigning each point to a single cluster, we “softly” assign them so they contribute fractionally to each cluster
+
+
+## How does this relate back to clustering?
+
+. . .
+
+From the EM algorithm:  $\hat{z}_{ik}$ is the estimated weight for observation $i$ belonging to cluster $k$ (i.e. soft membership)
+
+. . .
+
+  - assign observation $i$ to a cluster with the largest $\hat{z}_{ik}$
+  
+  - measure cluster assignment __uncertainty__ of $\displaystyle 1 - \max_k \hat{z}_{ik}$
+
+
+. . .
+
+__Our parameters determine the type of clusters__
+
+
+. . .
+
+In the 1D case, there are two options:
+
+
+. . .
+
+1. each cluster __is assumed to have equal variance__ (spread): $\sigma_1^2 = \sigma_2^2 = \dots = \sigma_k^2$
+
+
+. . .
+
+2. each cluster __is allowed to have a different variance__
+
+
+. . .
+
+_But that is only 1D... what happens in multiple dimensions?_
+
+
+## Multivariate GMMs
+
+$$f(x) = \sum_{k=1}^K \tau_k f_k(x; \theta_k) \qquad \text{where }f_k(x; \theta_k) \sim N(\boldsymbol{\mu}_k, \boldsymbol{\Sigma}_k)$$
+
+
+Each component is a __multivariate normal distribution__:
+
+
+. . .
+
+- $\boldsymbol{\mu}_k$ is a _vector_ of means in $p$ dimensions
+
+
+. . .
+
+- $\boldsymbol{\Sigma}_k$ is the $p \times p$ __covariance__ matrix - describes the joint variability between pairs of variables
+
+$$\sum=\left[\begin{array}{cccc}
+\sigma_{1}^{2} & \sigma_{1,2} & \cdots & \sigma_{1, p} \\
+\sigma_{2,1} & \sigma_{2}^{2} & \cdots & \sigma_{2, p} \\
+\vdots & \vdots & \ddots & \vdots \\
+\sigma_{p, 1} & \sigma_{p, 2}^{2} & \cdots & \sigma_{p}^{2}
+\end{array}\right]$$
+
+
+
+## Covariance constraints
+
+$$\sum=\left[\begin{array}{cccc}
+\sigma_{1}^{2} & \sigma_{1,2} & \cdots & \sigma_{1, p} \\
+\sigma_{2,1} & \sigma_{2}^{2} & \cdots & \sigma_{2, p} \\
+\vdots & \vdots & \ddots & \vdots \\
+\sigma_{p, 1} & \sigma_{p, 2}^{2} & \cdots & \sigma_{p}^{2}
+\end{array}\right]$$
+
+. . .
+
+As the number of dimensions increases, model fitting and estimation become increasingly difficult
+
+. . .
+
+We can use __constraints__ on multiple aspects of the $k$ covariance matrices:
+
+
+. . .
+
+- __volume__: size of the clusters, i.e., number of observations, 
+
+- __shape__: direction of variance, i.e. which variables display more variance
+
+- __orientation__: aligned with axes (low covariance) versus tilted (due to relationships between variables)
+
+
+## Covariance constraints
+
+```{r out.width='70%', echo = FALSE, fig.align='center'}
+knitr::include_graphics("https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5096736/bin/nihms793803f2.jpg")
+```
+
+- The three letters in the model name denote, in order, the volume, shape, and orientation across clusters
+
+- __E__: equal and __V__: varying (__VVV__ is the most flexible, but has the most parameters)
+
+- Two II: __spherical__, one I: __diagonal__, the remaining are __general__
+
+. . .
+
+How do we know which one to choose?
+
+## Bayesian information criterion (BIC)
+
+__This is a statistical model__
+
+$$f(x) = \sum_{k=1}^K \tau_k f_k(x; \theta_k) \qquad \text{where }f_k(x; \theta_k) \sim N(\boldsymbol{\mu}_k, \boldsymbol{\Sigma}_k)$$
+
+
+. . .
+
+Use a __model selection__ procedure for determining which best characterizes the data
+
+
+. . .
+
+Specifically, use a __penalized likelihood__ measure $$\text{BIC} = 2\log \mathcal{L} - m\log n$$
+
+- $\log \mathcal{L}$: log-likelihood of the considered model
+
+- with $m$ parameters (_VVV_ has the most parameters) and $n$ observations
+
+. . .
+
+- __penalizes__ large models with __many clusters without constraints__
+
+- __use BIC to choose the covariance constraints AND number of clusters__
+
+:::aside
+The above $\text{BIC}$ is really the $- \text{BIC}$ of what you typically see, this sign flip is just for ease
+:::
+
+# Example
+
+## Data: NBA player statistics per 100 possessions (2023-24 regular season)
+
+Obtained via [`ballr` package](https://github.com/rtelmore/ballr)
+
+```{r load-data, warning = FALSE, message = FALSE}
+library(tidyverse)
+theme_set(theme_light())
+nba_players <- read_csv("https://raw.githubusercontent.com/36-SURE/36-SURE.github.io/main/data/nba_players.csv")
+head(nba_players)
+```
+
+```{r}
+#| echo: false
+ggplot2::theme_set(ggplot2::theme_light(base_size = 20))
+```
+
+
+## Implementation with [`mclust`](https://cran.r-project.org/web/packages/mclust/vignettes/mclust.html) package
+
+Select the model and number of clusters
+
+Use `Mclust()` function to search over 1 to 9 clusters (default) and the different covariance constraints (i.e. models) 
+
+```{r nba-mclust}
+library(mclust)
+# x3pa: 3pt attempts per 100 possessions
+# trb: total rebounds per 100 possessions
+nba_mclust <- nba_players |> 
+  select(x3pa, trb) |> 
+  Mclust()
+summary(nba_mclust)
+```
+
+## View clustering summary
+
+```{r}
+library(broom)
+nba_mclust |> 
+  tidy()  
+```
+
+
+## View clustering assignments
+
+```{r}
+#| fig-width: 12
+nba_mclust |> 
+  augment() |> 
+  ggplot(aes(x = x3pa, y = trb, color = .class, size = .uncertainty)) +
+  geom_point(alpha = 0.6) +
+  ggthemes::scale_color_colorblind()
+```
+
+
+
+## Display the BIC for each model and number of clusters
+
+::: columns
+::: {.column width="50%" style="text-align: left;"}
+
+```{r nba-bic, fig.align = 'center', fig.height=9}
+nba_mclust |> 
+  plot(what = "BIC", 
+       legendArgs = list(x = "bottomright", ncol = 4))
+```
+
+:::
+
+
+::: {.column width="50%" style="text-align: left;"}
+
+```{r nba-cluster-plot, fig.height=9} 
+nba_mclust |> 
+  plot(what = "classification")
+```
+
+:::
+:::
+
+## How do the cluster assignments compare to the positions?
+
+Two-way table to compare the clustering assignments with player positions
+
+(What's the way to visually compare the two labels?)
+
+```{r nba-table}
+table("Clusters" = nba_mclust$classification, "Positions" = nba_players$pos)
+```
+
+Takeaway: positions tend to fall within particular clusters
+
+
+## What about the cluster probabilities?
+
+```{r nba-probs, fig.width=18, fig.height=6}
+nba_player_probs <- nba_mclust$z
+colnames(nba_player_probs) <- c("cluster1", "cluster2", "cluster3")
+
+nba_player_probs <- nba_player_probs |>
+  as_tibble() |>
+  mutate(player = nba_players$player) |>
+  pivot_longer(!player, names_to = "cluster", values_to = "prob")
+
+nba_player_probs |>
+  ggplot(aes(prob)) +
+  geom_histogram() +
+  facet_wrap(~ cluster)
+```
+
+
+
+## Which players have the highest uncertainty?
+
+::: columns
+::: {.column width="50%" style="text-align: left;"}
+
+<br>
+
+```{r nba-uncertainty, eval = FALSE}
+nba_players |>
+  mutate(cluster = nba_mclust$classification,
+         uncertainty = nba_mclust$uncertainty) |> 
+  group_by(cluster) |>
+  slice_max(uncertainty, n = 5) |> 
+  mutate(player = fct_reorder(player, uncertainty)) |> 
+  ggplot(aes(x = uncertainty, y = player)) +
+  geom_point(size = 3) +
+  facet_wrap(~ cluster, scales = "free_y", nrow = 3)
+```
+
+:::
+
+::: {.column width="50%" style="text-align: left;"}
+```{r ref.label='nba-uncertainty', echo=FALSE, fig.height=9}
+```
+
+:::
+:::
+
+## Challenges and resources
+
+*   What if the data are not normal (ish) and instead are skewed?
+
+    *   Apply a transformation, then perform GMM
+    
+    *   GMM on principal components of data
+    
+    *   [Multivariate $t$ mixture model](https://link.springer.com/article/10.1007/s11222-011-9272-x)
+    
+*   [Review paper](https://www.annualreviews.org/content/journals/10.1146/annurev-statistics-033121-115326): Model-Based Clustering
+
+*   [Book](https://math.univ-cotedazur.fr/~cbouveyr/MBCbook/): Model-Based Clustering and Classification for Data Science
+    
+*   [Adrian Raftery's website](https://sites.stat.washington.edu/raftery/Research/mbc.html)
+    
+## Appendix: code to build dataset
+
+```{r}
+#| eval: false
+library(tidyverse)
+library(ballr)
+nba_players <- NBAPerGameStatisticsPer100Poss(season = 2024)
+nba_players <- nba_players |> 
+  group_by(player) |> 
+  slice_max(g) |> 
+  ungroup() |> 
+  filter(mp >= 150) # keep players with at least 150 minutes played
+```
