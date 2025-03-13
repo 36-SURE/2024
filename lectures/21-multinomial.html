@@ -278,7 +278,7 @@
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
 <span id="cb1-2"><a aria-hidden="true" tabindex="-1"></a><span class="fu">theme_set</span>(<span class="fu">theme_light</span>())</span>
-<span id="cb1-3"><a aria-hidden="true" tabindex="-1"></a>batted_balls <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"https://raw.githubusercontent.com/36-SURE/36-SURE.github.io/main/data/batted_balls.csv"</span>)</span>
+<span id="cb1-3"><a aria-hidden="true" tabindex="-1"></a>batted_balls <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"https://raw.githubusercontent.com/36-SURE/2024/main/data/batted_balls.csv"</span>)</span>
 <span id="cb1-4"><a aria-hidden="true" tabindex="-1"></a>hr_logit <span class="ot">&lt;-</span> <span class="fu">glm</span>(is_hr <span class="sc">~</span> launch_speed <span class="sc">+</span> launch_angle, <span class="at">family =</span> binomial, <span class="at">data =</span> batted_balls)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell" data-layout-align="center">
@@ -527,7 +527,7 @@ Y \mid x \sim {\rm Binomial}(n=1,p=\mathbb{E}[Y \mid x])
 <p>NFL play-by-play dataset (2012-2022) with the next score (in a half) for each play</p>
 <p>Following steps provided by <a href="https://github.com/nflverse/nflverse-pbp/blob/master/models/model_data.R"><code>nflfastR</code></a>, which follows the OG <a href="https://github.com/ryurko/nflscrapR-models/blob/master/R/init_models/init_ep_fg_models.R"><code>nflscrapR</code></a></p>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a aria-hidden="true" tabindex="-1"></a>nfl_pbp <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"https://github.com/36-SURE/36-SURE.github.io/raw/main/data/nfl_pbp.csv.gz"</span>)</span>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a aria-hidden="true" tabindex="-1"></a>nfl_pbp <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"https://github.com/36-SURE/2024/raw/main/data/nfl_pbp.csv.gz"</span>)</span>
 <span id="cb5-2"><a aria-hidden="true" tabindex="-1"></a><span class="co"># glimpse(nfl_pbp)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell" data-layout-align="center">
@@ -1043,7 +1043,7 @@ converged</code></pre>
     </div>
   <div class="quarto-auto-generated-content" style="display: none;">
 <div class="footer footer-default">
-<p><a href="https://36-sure.github.io">36-SURE.github.io</a></p>
+<p><a href="https://36-sure.github.io/2024">36-SURE.github.io/2024</a></p>
 </div>
 </div></div>
 
