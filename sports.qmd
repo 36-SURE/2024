@@ -12,12 +12,12 @@ Note: To download a `.qmd` file, right click and choose "Save Link As...".
 
 | Date   | Title                                  | Materials                                                                                                                                                 |
 |--------|----------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------|
-| June 3 | Getting started with `R`               | [`.html`](sports/labs/01-intro.qmd) &nbsp; [`.qmd`](https://raw.githubusercontent.com/36-SURE/36-SURE.github.io/main/sports/labs/01-intro.qmd)                 |
-| June 4 | Data wrangling                         | [`.html`](sports/labs/02-wrangling.qmd) &nbsp; [`.qmd`](https://raw.githubusercontent.com/36-SURE/36-SURE.github.io/main/sports/labs/02-wrangling.qmd)         |
-| June 5 | Data visualization                     | [`.html`](sports/labs/03-visualization.qmd) &nbsp; [`.qmd`](https://raw.githubusercontent.com/36-SURE/36-SURE.github.io/main/sports/labs/03-visualization.qmd) |
+| June 3 | Getting started with `R`               | [`.html`](sports/labs/01-intro.qmd) &nbsp; [`.qmd`](https://raw.githubusercontent.com/36-SURE/2024/main/sports/labs/01-intro.qmd)                 |
+| June 4 | Data wrangling                         | [`.html`](sports/labs/02-wrangling.qmd) &nbsp; [`.qmd`](https://raw.githubusercontent.com/36-SURE/2024/main/sports/labs/02-wrangling.qmd)         |
+| June 5 | Data visualization                     | [`.html`](sports/labs/03-visualization.qmd) &nbsp; [`.qmd`](https://raw.githubusercontent.com/36-SURE/2024/main/sports/labs/03-visualization.qmd) |
 | June 6 | Using GitHub for project collaboration | [`.html`](sports/labs/04-github.qmd)                                                                                                                      |
-| June 24 | Regression                     | [`.html`](sports/labs/05-regression.qmd) &nbsp; [`.qmd`](https://raw.githubusercontent.com/36-SURE/36-SURE.github.io/main/sports/labs/05-regression.qmd) |
-| June 25 | Regularization                     | [`.html`](sports/labs/06-regularization.qmd) &nbsp; [`.qmd`](https://raw.githubusercontent.com/36-SURE/36-SURE.github.io/main/sports/labs/06-regularization.qmd) |
+| June 24 | Regression                     | [`.html`](sports/labs/05-regression.qmd) &nbsp; [`.qmd`](https://raw.githubusercontent.com/36-SURE/2024/main/sports/labs/05-regression.qmd) |
+| June 25 | Regularization                     | [`.html`](sports/labs/06-regularization.qmd) &nbsp; [`.qmd`](https://raw.githubusercontent.com/36-SURE/2024/main/sports/labs/06-regularization.qmd) |
 <!-- |        |                          |                                           |                                         | -->
 
 <!-- |        |                          |                                           |                                         | -->
