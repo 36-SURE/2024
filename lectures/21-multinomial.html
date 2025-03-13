@@ -970,7 +970,7 @@ converged</code></pre>
 <p>Note: XGBoost requires the multinomial categories to be numeric starting at 0</p>
 <div class="cell" data-layout-align="center">
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(xgboost)  </span>
-<span id="cb15-2"><a aria-hidden="true" tabindex="-1"></a>nfl_pbp <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"https://github.com/36-SURE/36-SURE.github.io/raw/main/data/nfl_pbp.csv.gz"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb15-2"><a aria-hidden="true" tabindex="-1"></a>nfl_pbp <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"https://github.com/36-SURE/2024/raw/main/data/nfl_pbp.csv.gz"</span>) <span class="sc">|&gt;</span> </span>
 <span id="cb15-3"><a aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">next_score_half =</span> <span class="fu">fct_relevel</span>(next_score_half, </span>
 <span id="cb15-4"><a aria-hidden="true" tabindex="-1"></a>                                       <span class="st">"No_Score"</span>, <span class="st">"Safety"</span>, <span class="st">"Field_Goal"</span>, <span class="st">"Touchdown"</span>,</span>
 <span id="cb15-5"><a aria-hidden="true" tabindex="-1"></a>                                       <span class="st">"Opp_Safety"</span>, <span class="st">"Opp_Field_Goal"</span>, <span class="st">"Opp_Touchdown"</span>),</span>

@@ -2146,7 +2146,7 @@
     "href": "lectures/21-multinomial.html#multinomial-classification-with-xgboost",
     "title": "Supervised learning: multinomial classification",
     "section": "Multinomial classification with XGBoost",
-    "text": "Multinomial classification with XGBoost\nNote: XGBoost requires the multinomial categories to be numeric starting at 0\n\nlibrary(xgboost)  \nnfl_pbp &lt;- read_csv(\"https://github.com/36-SURE/36-SURE.github.io/raw/main/data/nfl_pbp.csv.gz\") |&gt; \n  mutate(next_score_half = fct_relevel(next_score_half, \n                                       \"No_Score\", \"Safety\", \"Field_Goal\", \"Touchdown\",\n                                       \"Opp_Safety\", \"Opp_Field_Goal\", \"Opp_Touchdown\"),\n         next_score_label = as.numeric(next_score_half) - 1)"
+    "text": "Multinomial classification with XGBoost\nNote: XGBoost requires the multinomial categories to be numeric starting at 0\n\nlibrary(xgboost)  \nnfl_pbp &lt;- read_csv(\"https://github.com/36-SURE/2024/raw/main/data/nfl_pbp.csv.gz\") |&gt; \n  mutate(next_score_half = fct_relevel(next_score_half, \n                                       \"No_Score\", \"Safety\", \"Field_Goal\", \"Touchdown\",\n                                       \"Opp_Safety\", \"Opp_Field_Goal\", \"Opp_Touchdown\"),\n         next_score_label = as.numeric(next_score_half) - 1)"
   },
   {
     "objectID": "lectures/21-multinomial.html#leave-one-season-out-cross-validation",
