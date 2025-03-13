@@ -1,0 +1,67 @@
+---
+title: "Health"
+---
+  
+## Capstone project  
+
+<!-- ## Main project -->
+
+<!-- *   Description -->
+
+<!-- *   [Report template]() -->
+
+<!-- *   [Poster template](https://docs.google.com/presentation/d/1R8I-fcPI5RM2QQRwRqss9hKOsKFgWA9qOqOgCppQn4E) -->
+
+
+[Guidelines](https://36-sure.github.io/health/project/description.html)
+
+## Labs
+
+Note: To download a `.qmd` file, right click and choose "Save Link As...".
+
+| Date   | Title                                  | Materials                                                                                                                                                  |
+|---------------|---------------|-------------------------------------------|
+| June 3 | Getting started with `R`               | [`.html`](health/labs/01-intro.html) &nbsp; [`.qmd`](https://raw.githubusercontent.com/36-SURE/36-SURE.github.io/main/health/labs/01-intro.qmd)                 |
+| June 4 | Data wrangling                         | [`.html`](health/labs/02-wrangling.html) &nbsp; [`.qmd`](https://raw.githubusercontent.com/36-SURE/36-SURE.github.io/main/health/labs/02-wrangling.qmd)         |
+| June 5 | Data visualization                     | [`.html`](health/labs/03-visualization.html) &nbsp; [`.qmd`](https://raw.githubusercontent.com/36-SURE/36-SURE.github.io/main/health/labs/03-visualization.qmd) |
+| June 6 | Using GitHub for project collaboration | [`.html`](sports/labs/04-github.qmd)                                                                                                                       |
+| June 24 | Regression                     | [`.html`](health/labs/05-regression.qmd) &nbsp; [`.qmd`](https://raw.githubusercontent.com/36-SURE/36-SURE.github.io/main/health/labs/05-regression.qmd) |
+
+<!-- |        | Regression 1                        |                                          |                                         | -->
+
+<!-- |        | Regression 2                        |                                          |                                         | -->
+
+## EDA projects
+
+|           |                                 |                                                      |
+|---------------|-----------------------------|-----------------------------------------|
+| Project 1 | Hospital ratings                | [description](health/eda/hospitals.qmd)              |
+| Project 2 | Maternal healthcare disparities | [description](health/eda/maternal.qmd)               |
+| Project 3 | Opioid prescriptions and claims | [description](health/eda/prescriptions.qmd)          |
+| Project 4 | Registered nurses               | [description](health/eda/nurses.qmd)                 |
+| Project 5 | COVID cases and deaths          | [description](health/eda/covid_cases_deaths.qmd)     |
+| Project 6 | COVID hospitalizations          | [description](health/eda/covid_hospitalizations.qmd) |
+
+## Resources
+
+-   [CMU Delphi](https://delphi.cmu.edu/)
+
+-   [PHIGHT COVID](https://phightcovid.org/)
+
+-   [R for Public Health](https://rviews.rstudio.com/2021/06/02/r-for-public-health/)
+
+-   [CRAN Task View: Epidemiology](https://cran.r-project.org/web/views/Epidemiology.html)
+
+-   [Epiverse](https://data.org/initiatives/epiverse/) and [Epiverse-TRACE](https://github.com/epiverse-trace)
+
+-   [The Epidemiologist R Handbook](https://epirhandbook.com/)
+
+-   [The R4Epis project](https://r4epis.netlify.app/)
+
+-   [The R Epidemics Consortium (RECON)](https://www.repidemicsconsortium.org/)
+
+-   [pharmaverse](https://pharmaverse.org/)
+
+-   [R/Pharma Conference](https://rinpharma.com/)
+
+-   R/Medicine workshops: [2023](https://events.linuxfoundation.org/r-medicine/program/schedule/), [2022](https://www.youtube.com/playlist?list=PL4IzsxWztPdmSeucR67EH_8_hzldqYZX4)

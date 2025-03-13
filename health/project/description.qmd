@@ -1,0 +1,654 @@
+# description.qmd.json (JSON to Markdown)
+
+**title**: Project Guidelines
+
+## markdown
+
+  ## yaml
+
+    **title**: Project Guidelines
+
+  **headingText**: Your Task
+
+  **containsRefs**: False
+
+  **markdown**: 
+
+
+Each student has been allocated into a project group (of up to 4 students).
+Each group has been assigned a specific project research topic.
+Your goal is to complete the required project deliverables and checkpoints, in accordance with the guidelines detailed in the remainder of this document.
+
+## Deliverables
+
+This project has the following **three** key deliverables **DUE FRIDAY, JULY 19 AT 6PM ET**. 
+
+(NOTE: It is important to **finish everything by the July 19 deadline**, due to the Minneapolis trip the week of July 22.)
+
+### 1. Report
+
+[[template](https://raw.githubusercontent.com/36-SURE/36-SURE.github.io/main/health/project/report-template.qmd)] (right click and choose "Save Link As..." to download)
+
+**DUE FRIDAY, JULY 19 AT 6PM ET**
+
+Your report should be written using Quarto and submitted as a rendered `.html` file. 
+We recommend using an **IDMRaD** (Introduction, Data, Methods, Results and Discussion) report format, with details provided in the report template.
+
+### 2. Poster 
+
+[[template](https://docs.google.com/presentation/d/1R8I-fcPI5RM2QQRwRqss9hKOsKFgWA9qOqOgCppQn4E)] (Google Slides link)
+
+**DUE FRIDAY, JULY 19 AT 6PM ET**
+
+Your poster should be submitted as a `.pdf` file. We will then make a printed copy for the poster session on the final day (July 26).
+
+### 3. Slides
+
+**DUE FRIDAY, JULY 19 AT 6PM ET**
+
+Each group will give an **8-minute presentation on the final day (July 26)**. 
+The presentation should effectively have the same structure as your report with an introduction, followed by data description, an overview of methods, followed by results and discussion.
+Your slides may be created in any software, but we ony accept submissions in the form of a `.pdf` file, a Google Slides link, or a Quarto presentation ([self-contained `.html` file or hosted online](https://quarto.org/docs/output-formats/html-publishing.html)).
+
+<!-- 48-hour grace period -->
+
+## Checkpoints
+
+**Checkpoint 1: 5-minute presentation during lab on July 1**
+
+**Note: It is perfectly fine if you don't have any results at this point**
+
+**No notes/scripts are allowed**
+
+Your first checkpoint presentation should be structured as follows.
+
+*   Introduction (1 slide): Describe your project topic/question(s) and why it is important
+
+*   Data (1 slide): Data description, any preliminary data pre-processing/cleaning steps
+
+*   EDA (2 slides max): 1--2 EDA plots related to your question(s) of interest
+
+    *   Design the slides using the [assertion-evidence]( https://www.cmu.edu/student-success/other-resources/handouts/comm-supp-pdfs/designing-powerpoint-slides.pdf) model
+
+*   Methods (1 slide): Early thoughts on methods/modeling strategy. Justify why it might be appropriate to answer your question(s) of interest
+
+<!-- *   (Optional) Results: Preliminary results if you already have some -->
+
+*   Plan of action (1 slide): List all the steps needed to complete your project (be specific). Highlight the completed steps. What are the next steps?
+
+**Checkpoint 2: 8-minute presentation during lab on July 12**
+
+**No notes/scripts are allowed**
+
+Your second checkpoint presentation should be structured as follows.
+
+*   Introduction (1 slide): Describe your project topic/question(s) and why it is important
+
+*   Data: (1 slide) Data description and any major data pre-processing/cleaning steps (e.g., whether you consider specific observations, create any meaningful features, etc. - but don't mention minor steps like column type conversion, filtering out unnecessary rows)
+
+*   Plan of action (1 slide): List all the steps needed to complete your project (be specific). Highlight the completed steps.
+
+*   Present the completed steps (5 slides max): methods, plots, findings, etc.
+
+    *   Design the slides using the [assertion-evidence]( https://www.cmu.edu/student-success/other-resources/handouts/comm-supp-pdfs/designing-powerpoint-slides.pdf) model
+
+*   Plan of action (1 slide, use the same one as before): what are the steps still to be completed?
+
+
+## Project Topics
+
+(Note: All five topics below contribute to an overall theme of "the impact of race, social and demographic factors on health, survival, and mortality.")
+
+**Project 1: Premature deaths** **(TA: Princess)**
+
+Do income inequality, unemployment and high school completion rates affect the number of premature deaths of certain racial groups at the county level?
+
+**Project 2: Preventable hospital stays** **(TA: Nick)**
+
+Do income inequality, unemployment and high school completion rates affect the number of preventable hospital stays of certain racial groups at the county level?
+
+**Project 3: Mental health** **(TA: Nick)**
+
+Do the number of mental health professionals per county affect the number of poor mental health days? 
+
+**Project 4: Drug overdose and alcohol related deaths** **(TA: Princess)**
+
+Are there demographic and social factors that are predictors of drug overdose and alcohol-related incidents (e.g., driving accidents)?
+
+**Project 5: Influences on childhood outcomes** **(TA: Akshay)**
+
+How are juvenile healthcare outcomes impacted by adult health-related practices (e.g., smoking, drinking, diet)?
+
+## Analysis
+
+Your analysis should focus on both:
+
+**Exploratory data analysis:** Create visualizations to explore the underlying structure of the data and gain insights about distributions and relationships between variables. These should be ideally based on reasoned hypotheses.
+
+**Statistical modeling:** Demonstrate the use of statistical and machine learning modeling techniques. This may involve justifications for your choice of model (e.g., comparison with model specifications such as using different predictors, or with other methods), and then any relevant interpretation of the model with regards to your project’s topic. Depending on your project, the model(s) you rely on may be used for either an inference (i.e., interpreting coefficients) or prediction task. The model you choose just needs to be motivated by your question of interest.
+
+## Data
+
+**Required: County Health Rankings Data**
+
+* The [County Health Rankings Data](https://www.countyhealthrankings.org/health-data/methodology-and-sources/data-documentation)---collected by the University of Wisconsin Population Health Institute---ranks every county in each state on their Health Outcomes and Health Factors.
+
+* This dataset also contains the measurements used to calculate the rankings for each county. More information can be found [here](https://www.countyhealthrankings.org/what-impacts-health/county-health-rankings-model).
+
+* You must (at minimum) use the [2024 ranking measures](https://www.countyhealthrankings.org/health-data/county-health-rankings-measures) which can provide more insight into the most recent health ranking outcomes priorities. This can be used to better shape your project topic and related hypotheses.
+
+* Your analysis should mainly be done at the entire **United States scale** (as feasible). However, you are welcome to focus on some specific counties/states to test more granular spatial hypotheses.
+
+**Optional: additional suggestions and data sources**
+
+* Consider doing a temporal or trend analysis for your analyses, as the [County Health Rankings Data](https://www.countyhealthrankings.org/health-data/methodology-and-sources/data-documentation) are typically collected over time.
+  *   For predictive modeling, consider adding time-varying features or forecasting an outcome, with suitable uncertainty quantification.
+
+* Consider merging the County Health Rankings Data with other publicly available datasets. 
+
+  *   Example sources include US Census data (accessed via the [`tidycensus`](https://walker-data.com/tidycensus/) `R` package) and COVID-19 data (can be accssed via the [`covidcast`](https://cmu-delphi.github.io/covidcast/covidcastR/) `R` package).
+  
+**(Note: All data used must be publicly available.)**
+
+
+  **srcMarkdownNoYaml**: 
+
+## Your Task
+
+Each student has been allocated into a project group (of up to 4 students).
+Each group has been assigned a specific project research topic.
+Your goal is to complete the required project deliverables and checkpoints, in accordance with the guidelines detailed in the remainder of this document.
+
+## Deliverables
+
+This project has the following **three** key deliverables **DUE FRIDAY, JULY 19 AT 6PM ET**. 
+
+(NOTE: It is important to **finish everything by the July 19 deadline**, due to the Minneapolis trip the week of July 22.)
+
+### 1. Report
+
+[[template](https://raw.githubusercontent.com/36-SURE/36-SURE.github.io/main/health/project/report-template.qmd)] (right click and choose "Save Link As..." to download)
+
+**DUE FRIDAY, JULY 19 AT 6PM ET**
+
+Your report should be written using Quarto and submitted as a rendered `.html` file. 
+We recommend using an **IDMRaD** (Introduction, Data, Methods, Results and Discussion) report format, with details provided in the report template.
+
+### 2. Poster 
+
+[[template](https://docs.google.com/presentation/d/1R8I-fcPI5RM2QQRwRqss9hKOsKFgWA9qOqOgCppQn4E)] (Google Slides link)
+
+**DUE FRIDAY, JULY 19 AT 6PM ET**
+
+Your poster should be submitted as a `.pdf` file. We will then make a printed copy for the poster session on the final day (July 26).
+
+### 3. Slides
+
+**DUE FRIDAY, JULY 19 AT 6PM ET**
+
+Each group will give an **8-minute presentation on the final day (July 26)**. 
+The presentation should effectively have the same structure as your report with an introduction, followed by data description, an overview of methods, followed by results and discussion.
+Your slides may be created in any software, but we ony accept submissions in the form of a `.pdf` file, a Google Slides link, or a Quarto presentation ([self-contained `.html` file or hosted online](https://quarto.org/docs/output-formats/html-publishing.html)).
+
+<!-- 48-hour grace period -->
+
+## Checkpoints
+
+**Checkpoint 1: 5-minute presentation during lab on July 1**
+
+**Note: It is perfectly fine if you don't have any results at this point**
+
+**No notes/scripts are allowed**
+
+Your first checkpoint presentation should be structured as follows.
+
+*   Introduction (1 slide): Describe your project topic/question(s) and why it is important
+
+*   Data (1 slide): Data description, any preliminary data pre-processing/cleaning steps
+
+*   EDA (2 slides max): 1--2 EDA plots related to your question(s) of interest
+
+    *   Design the slides using the [assertion-evidence]( https://www.cmu.edu/student-success/other-resources/handouts/comm-supp-pdfs/designing-powerpoint-slides.pdf) model
+
+*   Methods (1 slide): Early thoughts on methods/modeling strategy. Justify why it might be appropriate to answer your question(s) of interest
+
+<!-- *   (Optional) Results: Preliminary results if you already have some -->
+
+*   Plan of action (1 slide): List all the steps needed to complete your project (be specific). Highlight the completed steps. What are the next steps?
+
+**Checkpoint 2: 8-minute presentation during lab on July 12**
+
+**No notes/scripts are allowed**
+
+Your second checkpoint presentation should be structured as follows.
+
+*   Introduction (1 slide): Describe your project topic/question(s) and why it is important
+
+*   Data: (1 slide) Data description and any major data pre-processing/cleaning steps (e.g., whether you consider specific observations, create any meaningful features, etc. - but don't mention minor steps like column type conversion, filtering out unnecessary rows)
+
+*   Plan of action (1 slide): List all the steps needed to complete your project (be specific). Highlight the completed steps.
+
+*   Present the completed steps (5 slides max): methods, plots, findings, etc.
+
+    *   Design the slides using the [assertion-evidence]( https://www.cmu.edu/student-success/other-resources/handouts/comm-supp-pdfs/designing-powerpoint-slides.pdf) model
+
+*   Plan of action (1 slide, use the same one as before): what are the steps still to be completed?
+
+
+## Project Topics
+
+(Note: All five topics below contribute to an overall theme of "the impact of race, social and demographic factors on health, survival, and mortality.")
+
+**Project 1: Premature deaths** **(TA: Princess)**
+
+Do income inequality, unemployment and high school completion rates affect the number of premature deaths of certain racial groups at the county level?
+
+**Project 2: Preventable hospital stays** **(TA: Nick)**
+
+Do income inequality, unemployment and high school completion rates affect the number of preventable hospital stays of certain racial groups at the county level?
+
+**Project 3: Mental health** **(TA: Nick)**
+
+Do the number of mental health professionals per county affect the number of poor mental health days? 
+
+**Project 4: Drug overdose and alcohol related deaths** **(TA: Princess)**
+
+Are there demographic and social factors that are predictors of drug overdose and alcohol-related incidents (e.g., driving accidents)?
+
+**Project 5: Influences on childhood outcomes** **(TA: Akshay)**
+
+How are juvenile healthcare outcomes impacted by adult health-related practices (e.g., smoking, drinking, diet)?
+
+## Analysis
+
+Your analysis should focus on both:
+
+**Exploratory data analysis:** Create visualizations to explore the underlying structure of the data and gain insights about distributions and relationships between variables. These should be ideally based on reasoned hypotheses.
+
+**Statistical modeling:** Demonstrate the use of statistical and machine learning modeling techniques. This may involve justifications for your choice of model (e.g., comparison with model specifications such as using different predictors, or with other methods), and then any relevant interpretation of the model with regards to your project’s topic. Depending on your project, the model(s) you rely on may be used for either an inference (i.e., interpreting coefficients) or prediction task. The model you choose just needs to be motivated by your question of interest.
+
+## Data
+
+**Required: County Health Rankings Data**
+
+* The [County Health Rankings Data](https://www.countyhealthrankings.org/health-data/methodology-and-sources/data-documentation)---collected by the University of Wisconsin Population Health Institute---ranks every county in each state on their Health Outcomes and Health Factors.
+
+* This dataset also contains the measurements used to calculate the rankings for each county. More information can be found [here](https://www.countyhealthrankings.org/what-impacts-health/county-health-rankings-model).
+
+* You must (at minimum) use the [2024 ranking measures](https://www.countyhealthrankings.org/health-data/county-health-rankings-measures) which can provide more insight into the most recent health ranking outcomes priorities. This can be used to better shape your project topic and related hypotheses.
+
+* Your analysis should mainly be done at the entire **United States scale** (as feasible). However, you are welcome to focus on some specific counties/states to test more granular spatial hypotheses.
+
+**Optional: additional suggestions and data sources**
+
+* Consider doing a temporal or trend analysis for your analyses, as the [County Health Rankings Data](https://www.countyhealthrankings.org/health-data/methodology-and-sources/data-documentation) are typically collected over time.
+  *   For predictive modeling, consider adding time-varying features or forecasting an outcome, with suitable uncertainty quantification.
+
+* Consider merging the County Health Rankings Data with other publicly available datasets. 
+
+  *   Example sources include US Census data (accessed via the [`tidycensus`](https://walker-data.com/tidycensus/) `R` package) and COVID-19 data (can be accssed via the [`covidcast`](https://cmu-delphi.github.io/covidcast/covidcastR/) `R` package).
+  
+**(Note: All data used must be publicly available.)**
+
+
+## formats
+
+  ## html
+
+    ## identifier
+
+      **display-name**: HTML
+
+      **target-format**: html
+
+      **base-format**: html
+
+    ## execute
+
+      **fig-width**: 7
+
+      **fig-height**: 5
+
+      **fig-format**: retina
+
+      **fig-dpi**: 96
+
+      **df-print**: default
+
+      **error**: False
+
+      **eval**: True
+
+      **cache**: None
+
+      **freeze**: False
+
+      **echo**: True
+
+      **output**: True
+
+      **warning**: True
+
+      **include**: True
+
+      **keep-md**: False
+
+      **keep-ipynb**: False
+
+      **ipynb**: None
+
+      **enabled**: None
+
+      **daemon**: None
+
+      **daemon-restart**: False
+
+      **debug**: False
+
+      ## ipynb-filters
+
+
+      **engine**: markdown
+
+    ## render
+
+      **keep-tex**: False
+
+      **keep-source**: False
+
+      **keep-hidden**: False
+
+      **prefer-html**: False
+
+      **output-divs**: True
+
+      **output-ext**: html
+
+      **fig-align**: default
+
+      **fig-pos**: None
+
+      **fig-env**: None
+
+      **code-fold**: none
+
+      **code-overflow**: scroll
+
+      **code-link**: False
+
+      **code-line-numbers**: False
+
+      **code-tools**: False
+
+      **tbl-colwidths**: auto
+
+      **merge-includes**: True
+
+      **inline-includes**: False
+
+      **preserve-yaml**: False
+
+      **latex-auto-mk**: True
+
+      **latex-auto-install**: True
+
+      **latex-clean**: True
+
+      **latex-max-runs**: 10
+
+      **latex-makeindex**: makeindex
+
+      ## latex-makeindex-opts
+
+
+      ## latex-tlmgr-opts
+
+
+      ## latex-input-paths
+
+
+      **latex-output-dir**: None
+
+      **link-external-icon**: False
+
+      **link-external-newwindow**: False
+
+      **self-contained-math**: False
+
+      ## format-resources
+
+
+      **notebook-links**: True
+
+      **format-links**: True
+
+    ## pandoc
+
+      **standalone**: True
+
+      **wrap**: none
+
+      **default-image-extension**: png
+
+      **to**: html
+
+      ## css
+
+        - ../../styles.css
+
+      **output-file**: description.html
+
+    ## language
+
+      **toc-title-document**: Table of contents
+
+      **toc-title-website**: On this page
+
+      **related-formats-title**: Other Formats
+
+      **related-notebooks-title**: Notebooks
+
+      **source-notebooks-prefix**: Source
+
+      **section-title-abstract**: Abstract
+
+      **section-title-appendices**: Appendices
+
+      **section-title-footnotes**: Footnotes
+
+      **section-title-references**: References
+
+      **section-title-reuse**: Reuse
+
+      **section-title-copyright**: Copyright
+
+      **section-title-citation**: Citation
+
+      **appendix-attribution-cite-as**: For attribution, please cite this work as:
+
+      **appendix-attribution-bibtex**: BibTeX citation:
+
+      **title-block-author-single**: Author
+
+      **title-block-author-plural**: Authors
+
+      **title-block-affiliation-single**: Affiliation
+
+      **title-block-affiliation-plural**: Affiliations
+
+      **title-block-published**: Published
+
+      **title-block-modified**: Modified
+
+      **callout-tip-title**: Tip
+
+      **callout-note-title**: Note
+
+      **callout-warning-title**: Warning
+
+      **callout-important-title**: Important
+
+      **callout-caution-title**: Caution
+
+      **code-summary**: Code
+
+      **code-tools-menu-caption**: Code
+
+      **code-tools-show-all-code**: Show All Code
+
+      **code-tools-hide-all-code**: Hide All Code
+
+      **code-tools-view-source**: View Source
+
+      **code-tools-source-code**: Source Code
+
+      **code-line**: Line
+
+      **code-lines**: Lines
+
+      **copy-button-tooltip**: Copy to Clipboard
+
+      **copy-button-tooltip-success**: Copied!
+
+      **repo-action-links-edit**: Edit this page
+
+      **repo-action-links-source**: View source
+
+      **repo-action-links-issue**: Report an issue
+
+      **back-to-top**: Back to top
+
+      **search-no-results-text**: No results
+
+      **search-matching-documents-text**: matching documents
+
+      **search-copy-link-title**: Copy link to search
+
+      **search-hide-matches-text**: Hide additional matches
+
+      **search-more-match-text**: more match in this document
+
+      **search-more-matches-text**: more matches in this document
+
+      **search-clear-button-title**: Clear
+
+      **search-detached-cancel-button-title**: Cancel
+
+      **search-submit-button-title**: Submit
+
+      **search-label**: Search
+
+      **toggle-section**: Toggle section
+
+      **toggle-sidebar**: Toggle sidebar navigation
+
+      **toggle-dark-mode**: Toggle dark mode
+
+      **toggle-reader-mode**: Toggle reader mode
+
+      **toggle-navigation**: Toggle navigation
+
+      **crossref-fig-title**: Figure
+
+      **crossref-tbl-title**: Table
+
+      **crossref-lst-title**: Listing
+
+      **crossref-thm-title**: Theorem
+
+      **crossref-lem-title**: Lemma
+
+      **crossref-cor-title**: Corollary
+
+      **crossref-prp-title**: Proposition
+
+      **crossref-cnj-title**: Conjecture
+
+      **crossref-def-title**: Definition
+
+      **crossref-exm-title**: Example
+
+      **crossref-exr-title**: Exercise
+
+      **crossref-ch-prefix**: Chapter
+
+      **crossref-apx-prefix**: Appendix
+
+      **crossref-sec-prefix**: Section
+
+      **crossref-eq-prefix**: Equation
+
+      **crossref-lof-title**: List of Figures
+
+      **crossref-lot-title**: List of Tables
+
+      **crossref-lol-title**: List of Listings
+
+      **environment-proof-title**: Proof
+
+      **environment-remark-title**: Remark
+
+      **environment-solution-title**: Solution
+
+      **listing-page-order-by**: Order By
+
+      **listing-page-order-by-default**: Default
+
+      **listing-page-order-by-date-asc**: Oldest
+
+      **listing-page-order-by-date-desc**: Newest
+
+      **listing-page-order-by-number-desc**: High to Low
+
+      **listing-page-order-by-number-asc**: Low to High
+
+      **listing-page-field-date**: Date
+
+      **listing-page-field-title**: Title
+
+      **listing-page-field-description**: Description
+
+      **listing-page-field-author**: Author
+
+      **listing-page-field-filename**: File Name
+
+      **listing-page-field-filemodified**: Modified
+
+      **listing-page-field-subtitle**: Subtitle
+
+      **listing-page-field-readingtime**: Reading Time
+
+      **listing-page-field-categories**: Categories
+
+      **listing-page-minutes-compact**: {0} min
+
+      **listing-page-category-all**: All
+
+      **listing-page-no-matches**: No matching items
+
+    ## metadata
+
+      **lang**: en
+
+      **fig-responsive**: True
+
+      **quarto-version**: 1.3.361
+
+      **theme**: united
+
+      **fontsize**: smaller
+
+      **linkcolor**: steelblue
+
+      **title**: Project Guidelines
+
+    ## extensions
+
+      ## book
+
+        **multiFile**: True
+
+## projectFormats
+
+  - html
+

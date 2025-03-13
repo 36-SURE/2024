@@ -1,0 +1,65 @@
+---
+title: "EDA project: NCAA softball statistics"
+---
+
+---
+
+## Overview
+
+This project will be released on Thursday, June 6 and **conclude with a 10-minute presentation (+ 2-3 minutes for Q&A) on Tuesday, June 18 (either during the morning session from x to x or in the afternoon from x to x)**.
+
+The goal of this project is to practice understanding the structure of a dataset, and to practice generating and evaluating hypotheses using fundamental EDA and data visualization techniques.
+
+## Deliverables
+
+Your team is expected to make slides to accompany your 12-minute presentation.
+
+<!-- The timing is strict; you will only have no more than 12 minutes to present.  -->
+
+The presentation should feature the following:
+
+-   Overview of the structure of your dataset
+
+-   **Three questions/hypotheses** you are interested in exploring
+
+-   **Three data visualizations** exploring the questions, at least two of which must be multivariate. **Each visualization must be in a different format** from the other two, and you must have at least one categorical and one continuous visualization
+
+-   **One clustering analysis**
+
+-   Conclusions reached for the hypotheses based on your EDA and data visualizations
+
+## Timeline
+
+There will be two submission deadlines:
+
+**Thursday, June 13 at 5pm ET** - Each student will push their individual code for the project thus far to their GitHub accounts for review. We will then provide feedback on the code submitted.
+
+**Monday, June 17 at 11:59pm ET** - Slides and full code must be completed and ready for presentation. Send your slides to Quang ([`quang@stat.cmu.edu`](mailto:quang@stat.cmu.edu)). All code must be written in `R`. Take advantage of examples from lectures, but also feel free to explore material online that may be relevant!
+
+## Data
+
+-   `game_id`: game ID
+-   `team`: pitching team
+-   `opponent`: batting team
+-   `player`: pitcher
+-   `ip`: innings pitched (number of innings a pitcher remains in a game)
+-   `ha`: hits allowed
+-   `er`: earned runs
+-   `bb`: batted balls
+-   `hb`: hit by pitch
+-   `so`: strikeout
+-   `bf`: batters faced\
+-   `hr_a`: home runs allowed
+-   `go`: ground outs
+-   `fo`: fly outs\
+-   `season`: year of the season
+
+## Starter code
+
+```{r, eval = FALSE}
+# install.packages("devtools")
+devtools::install_github("tmking2002/softballR")
+ncaa_softball_pitching_2023 <- softballR::load_ncaa_softball_playerbox(season = 2023, category = "Pitching")
+# scoreboard <- softballR::load_ncaa_softball_scoreboard(season = 2023)
+# write_csv(ncaa_softball_pitching_2023, "data/ncaa_softball_pitching_2023.csv")
+```

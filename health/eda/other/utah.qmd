@@ -1,0 +1,99 @@
+---
+title: "EDA project: healthcare indicators in Utah"
+---
+
+---
+
+## Overview
+
+This project will be released on Thursday, June 6 and **conclude with a 10-minute presentation on Tuesday, June 18 during lecture time**.
+
+Students will be randomly placed into groups of three and each group will be randomly assigned a dataset.
+
+The goal of this project is to practice understanding the structure of a dataset, and to practice generating and evaluating hypotheses using fundamental EDA and data visualization techniques.
+
+## Deliverables
+
+Each group is expected to make slides to accompany the 10-minute presentation.
+
+The presentation should feature the following:
+
+-   Overview of the structure of your dataset
+
+-   **Three questions/hypotheses** you are interested in exploring
+
+-   **Three data visualizations** exploring the questions, at least two of which must be multivariate. **Each visualization must be in a different format** from the other two, and you must have at least one categorical and one continuous visualization
+
+-   **One clustering analysis**
+
+-   Conclusions reached for the hypotheses based on your EDA and data visualizations
+
+## Timeline
+
+There will be two submission deadlines:
+
+**Thursday, June 13 at 5pm ET** - Each student will push their individual code for the project thus far to GitHub for review. We will then provide feedback.
+
+**Monday, June 17 at 5pm ET** - Slides and full code must be completed and ready for presentation. Send your slides to Quang ([`quang@stat.cmu.edu`](mailto:quang@stat.cmu.edu)). All code must be written in `R`; but the slides may be created in any software. Take advantage of examples from lectures, but also feel free to explore online resources that may be relevant.
+
+## Data
+
+This dataset contains information on health indicators for 29 counties in Utah in 2014. The data are available online at the [State of Utah Open Data Catalog](https://opendata.utah.gov/) website. The provided dataset is a cleaned version of the original data (which can be found [here](https://opendata.utah.gov/Health/Health-Care-Indicators-By-Counties-In-Utah-2014/qmsu-gki4)).
+
+Each row in the dataset corresponds to a county in Utah and the columns are:
+
+-   `County`: name of the county in Utah
+-   `Population`: county population
+-   `PercentUnder18`: percent of county population that is under 18
+-   `PercentOver65`: percent of county population that is 65 and over
+-   `DiabeticRate`: diabetic rate
+-   `HIVRate`: hive rate
+-   `PrematureMortalityRate`: premature mortality rate
+-   `InfantMortalityRate`: infant mortality rate
+-   `ChildMortalityRate`: child mortality rate
+-   `LimitedAccessToFood`: limited access to food %
+-   `FoodInsecure`: % food insecure
+-   `MotorDeathRate`: motor vehicle mortality rate
+-   `DrugDeathRate`: drug poisoning mortality rate
+-   `Uninsured`: % uninsured
+-   `UninsuredChildren`: % uninsured children
+-   `HealthCareCosts`: cost of healthcare
+-   `CouldNotSeeDr`: % could not see doctor due to cost
+-   `MedianIncome`: median household income
+-   `ChildrenFreeLunch`: % children eligible for free lunch
+-   `HomicideRate`: homicide rate
+
+```{r, echo = FALSE, eval = FALSE}
+# https://juliasilge.com/blog/health-care-indicators/
+utah_health <- read_csv("https://opendata.utah.gov/resource/qmsu-gki4.csv")
+utah_health <- utah_health |> 
+  select(2:5, 18,22,24,27,31,34,36,38,42,44,48,51,55,60,63,64)
+colnames(utah_health) <- c("County",
+                           "Population",
+                           "PercentUnder18",
+                           "PercentOver65",
+                           "DiabeticRate", 
+                           "HIVRate",
+                           "PrematureMortalityRate",
+                           "InfantMortalityRate",
+                           "ChildMortalityRate",
+                           "LimitedAccessToFood",
+                           "FoodInsecure", 
+                           "MotorDeathRate",
+                           "DrugDeathRate",
+                           "Uninsured", 
+                           "UninsuredChildren",
+                           "HealthCareCosts", 
+                           "CouldNotSeeDr",
+                           "MedianIncome",
+                           "ChildrenFreeLunch",
+                           "HomicideRate")
+write_csv(utah_health, "data/utah_health.csv")
+```
+
+## Starter code
+
+```{r, eval=FALSE}
+library(tidyverse)
+utah_health <- read_csv("https://raw.githubusercontent.com/36-SURE/36-SURE.github.io/main/data/utah_health.csv")
+```

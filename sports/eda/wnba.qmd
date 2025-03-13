@@ -1,0 +1,91 @@
+---
+title: "EDA project: WNBA shooting"
+---
+
+---
+
+## Overview
+
+This project will be released on Thursday, June 6 and **conclude with an 8-minute presentation on Tuesday, June 18 during lecture time**.
+
+Students will be randomly placed into groups of three and each group will be randomly assigned a dataset.
+
+The goal of this project is to practice understanding the structure of a dataset, and to practice generating and evaluating hypotheses using fundamental EDA and data visualization techniques.
+
+## Deliverables
+
+Each group is expected to make slides to accompany the 8-minute presentation.
+
+The presentation should feature the following:
+
+-   Overview of the structure of your dataset
+
+-   **Three questions/hypotheses** you are interested in exploring
+
+-   **Three data visualizations** exploring the questions, at least two of which must be multivariate. **Each visualization must be in a different format** from the other two, and you must have at least one categorical and one continuous visualization
+
+-   **One clustering analysis**
+
+-   Conclusions for the hypotheses based on your EDA and data visualizations
+
+## Timeline
+
+There will be two submission deadlines:
+
+**Thursday, June 13 at 5pm ET** - Each student will push their individual code for the project thus far to GitHub for review. We will then provide feedback.
+
+**Monday, June 17 at 5pm ET** - Slides and full code must be completed and ready for presentation. Send your slides to Quang ([`quang@stat.cmu.edu`](mailto:quang@stat.cmu.edu)). All code must be written in `R`; but the slides may be created in any software. Take advantage of examples from lectures, but also feel free to explore online resources that may be relevant. (But be sure to always consult the `R` help documentation first before attempting to google around or ask ChatGPT.)
+
+## Data
+
+This dataset contains all shot attempts in the 2023 WNBA season accessed via the [`wehoop`](https://wehoop.sportsdataverse.org/) package.
+
+Each row in the dataset corresponds to a shot attempt and the columns are:
+
+-   `game_id`: unique integer ID for each WNBA game
+-   `game_play_number`: integer indicating the recorded play number for the shot attempt, where 1 indicates the first play of the game
+-   `game_type`: type of the game (`2`: regular season, `3`: postseason)
+-   `desc`: string detailed description of shot attempt
+-   `shot_type`: string description of the shot type (e.g., dunk, layup, jump shot, etc.)
+-   `made_shot`: boolean denoting if the shot was made (TRUE) or not (FALSE)
+-   `shot_value`: numeric value of the shot outcome (0 for shots that were not made, and a positive value for made shots)
+-   `coordinate_x`: horizontal location in feet of shot attempt where the hoop would be located at 25 feet
+-   `coordinate_y`: vertical location in feet of shot attempt with respect to the target hoop (the hoop should be a little in front of 0 but the coordinate system is not exact)
+-   `shooting_team`: string name of the team taking the shot
+-   `home_team_name`: string name of the home team
+-   `away_team_name`: string name of the away team
+-   `home_score`: integer value of the home team score after the shot
+-   `away_score`: integer value of the away team score after the shot
+-   `qtr`: integer denoting the quarter/period in the game
+-   `quarter_seconds_remaining`: numeric integer value for number of seconds remaining in quarter/period
+-   `game_seconds_remaining`: numeric integer value for number of seconds remaining in game
+
+Note that a full glossary of the features available in the WNBA shot data can be found [here](https://wehoop.sportsdataverse.org/reference/load_wbb_pbp.html).
+
+## Starter code
+
+```{r, eval = FALSE}
+library(tidyverse)
+wnba_shots <- read_csv("https://raw.githubusercontent.com/36-SURE/36-SURE.github.io/main/data/wnba_shots.csv")
+```
+
+In case you're curious, the code to build this dataset can be found below.
+
+```{r, eval = FALSE}
+library(tidyverse)
+library(wehoop) # install.packages("wehoop")
+wnba_pbp <- load_wnba_pbp(2023)
+wnba_shots <- wnba_pbp |> 
+  filter(shooting_play) |> 
+  # make a column to indicate the shooting team
+  mutate(shooting_team = ifelse(team_id == home_team_id, 
+                                home_team_name,
+                                away_team_name)) |> 
+  select(game_id, game_play_number, game_type = season_type,
+         desc = text, shot_type = type_text, 
+         made_shot = scoring_play, shot_value = score_value, 
+         coordinate_x, coordinate_y, shooting_team, 
+         home_team_name, away_team_name, home_score, away_score, qtr,
+         quarter_seconds_remaining = start_quarter_seconds_remaining,
+         game_seconds_remaining = start_game_seconds_remaining)
+```

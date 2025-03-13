@@ -1,0 +1,66 @@
+---
+title: "EDA project: NWSL team statistics"
+---
+
+---
+
+## Overview
+
+This project will be released on Thursday, June 6 and **conclude with an 8-minute presentation on Tuesday, June 18 during lecture time**.
+
+Students will be randomly placed into groups of three and each group will be randomly assigned a dataset.
+
+The goal of this project is to practice understanding the structure of a dataset, and to practice generating and evaluating hypotheses using fundamental EDA and data visualization techniques.
+
+## Deliverables
+
+Each group is expected to make slides to accompany the 8-minute presentation.
+
+The presentation should feature the following:
+
+-   Overview of the structure of your dataset
+
+-   **Three questions/hypotheses** you are interested in exploring
+
+-   **Three data visualizations** exploring the questions, at least two of which must be multivariate. **Each visualization must be in a different format** from the other two, and you must have at least one categorical and one continuous visualization
+
+-   **One clustering analysis**
+
+-   Conclusions for the hypotheses based on your EDA and data visualizations
+
+## Timeline
+
+There will be two submission deadlines:
+
+**Thursday, June 13 at 5pm ET** - Each student will push their individual code for the project thus far to GitHub for review. We will then provide feedback.
+
+**Monday, June 17 at 5pm ET** - Slides and full code must be completed and ready for presentation. Send your slides to Quang ([`quang@stat.cmu.edu`](mailto:quang@stat.cmu.edu)). All code must be written in `R`; but the slides may be created in any software. Take advantage of examples from lectures, but also feel free to explore online resources that may be relevant. (But be sure to always consult the `R` help documentation first before attempting to google around or ask ChatGPT.)
+
+## Data
+
+This dataset contains regular season statistics for each NWSL team from 2016 to 2022 (excluding 2020 which was cancelled due to COVID). The National Women's Soccer League (NWSL) is the top professional women’s soccer league in the United States. The data was collected using the [`nwslR` package in `R`](https://github.com/nwslR/nwslR).
+
+Each row in the dataset corresponds to a team-season and the columns are:
+
+-   `team_name`: name of NWSL team
+-   `season`: regular season year of team's statistics
+-   `games_played`: number of games team played in season
+-   `goal_differential`: goals scored - goals conceded
+-   `goals`: number of goals scores
+-   `goals_conceded`: number of goals conceded
+-   `cross_accuracy`: percent of crosses that were successful
+-   `goal_conversion_pct`: percent of shots scored
+-   `pass_pct`: pass accuracy
+-   `pass_pct_opposition_half`: pass accuracy in opposition half
+-   `possession_pct`: percentage of overall ball possession the team had during the season
+-   `shot_accuracy`: percentage of shots on target
+-   `tackle_success_pct`: percent of successful tackles
+
+## Starter code
+
+```{r, eval = FALSE}
+library(tidyverse)
+nwsl_team_stats <- read_csv("https://raw.githubusercontent.com/36-SURE/36-SURE.github.io/main/data/nwsl_team_stats.csv")
+```
+
+In case you're curious, the code to build the data can be found [here](https://github.com/SCOREnetworkorg/sports-data-repository/blob/main/_prep/nwsl-team-stats/init-nwsl-team-season-stats.R).

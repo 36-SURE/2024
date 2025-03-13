@@ -1,0 +1,83 @@
+---
+title: "Sports"
+---
+
+## Capstone project
+
+[Guidelines](https://36-sure.github.io/sports/project/description.html)
+
+## Labs
+
+Note: To download a `.qmd` file, right click and choose "Save Link As...".
+
+| Date   | Title                                  | Materials                                                                                                                                                 |
+|--------|----------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------|
+| June 3 | Getting started with `R`               | [`.html`](sports/labs/01-intro.qmd) &nbsp; [`.qmd`](https://raw.githubusercontent.com/36-SURE/36-SURE.github.io/main/sports/labs/01-intro.qmd)                 |
+| June 4 | Data wrangling                         | [`.html`](sports/labs/02-wrangling.qmd) &nbsp; [`.qmd`](https://raw.githubusercontent.com/36-SURE/36-SURE.github.io/main/sports/labs/02-wrangling.qmd)         |
+| June 5 | Data visualization                     | [`.html`](sports/labs/03-visualization.qmd) &nbsp; [`.qmd`](https://raw.githubusercontent.com/36-SURE/36-SURE.github.io/main/sports/labs/03-visualization.qmd) |
+| June 6 | Using GitHub for project collaboration | [`.html`](sports/labs/04-github.qmd)                                                                                                                      |
+| June 24 | Regression                     | [`.html`](sports/labs/05-regression.qmd) &nbsp; [`.qmd`](https://raw.githubusercontent.com/36-SURE/36-SURE.github.io/main/sports/labs/05-regression.qmd) |
+| June 25 | Regularization                     | [`.html`](sports/labs/06-regularization.qmd) &nbsp; [`.qmd`](https://raw.githubusercontent.com/36-SURE/36-SURE.github.io/main/sports/labs/06-regularization.qmd) |
+<!-- |        |                          |                                           |                                         | -->
+
+<!-- |        |                          |                                           |                                         | -->
+
+<!-- |        |                          |                                           |                                         | -->
+
+<!-- |        |                          |                                           |                                         | -->
+
+
+## EDA projects
+
+|           |                                 |                                                      |
+|---------------|-----------------------------|-----------------------------------------|
+| Project 1 | WTA Grand Slam statistics                | [description](sports/eda/wta.html)             |
+| Project 2 |  WNBA shooting | [description](sports/eda/wnba.html)              |
+| Project 3 | NWSL team statistics  | [description](sports/eda/nwsl.html)         |
+| Project 4 | NHL shooting               | [description](sports/eda/nhl.html)                 |
+| Project 5 |  NFL passing           | [description](sports/eda/nfl.html)     |
+
+## Resources
+
+-   [CMSAC](https://www.stat.cmu.edu/cmsac)
+
+-   [SCORE Network](https://scorenetwork.org/)
+
+-   [CRAN Task View: Sports Analytics](https://cran.r-project.org/web/views/SportsAnalytics.html)
+
+-   [SportsDataverse](https://www.sportsdataverse.org/)
+
+-   NFL Big Data Bowl: [2019](https://github.com/nfl-football-ops/Big-Data-Bowl), [2020](https://www.kaggle.com/competitions/nfl-big-data-bowl-2020), [2021](https://www.kaggle.com/competitions/nfl-big-data-bowl-2021), [2022](https://www.kaggle.com/competitions/nfl-big-data-bowl-2022), [2023](https://www.kaggle.com/competitions/nfl-big-data-bowl-2023), [2024](https://www.kaggle.com/competitions/nfl-big-data-bowl-2024)
+
+-   [Analyzing Baseball Data with R](https://beanumber.github.io/abdwr3e/)
+
+-   [Big ideas in sports analytics and statistical tools for their investigation](https://t.co/MySZaPoOp6)
+
+-   [Player Tracking Data in Sports](https://www.annualreviews.org/doi/pdf/10.1146/annurev-statistics-033021-110117)
+
+-   [Handbook of Statistical Methods and Analyses in Sports](https://tinyurl.com/hosmaais)
+
+-   [Journal of Quantitative Analysis in Sports](https://www.degruyter.com/journal/key/jqas/html)
+
+-   Other conferences: [NESSIS](https://www.nessis.org/), [CASSIS](https://t.co/waq4mdlLoO), [CSAS](https://uconnsportsanalytics.org/)
+
+-   Recent papers by CMSAC
+
+    -   [NFL Ghosts](https://arxiv.org/pdf/2406.17220)
+
+    -   [Fractional tackles](https://arxiv.org/pdf/2403.14769)
+
+    -   [STRAIN](https://arxiv.org/pdf/2305.10262)
+
+    -   [Augmented adjusted plus-minus](https://www.degruyter.com/document/doi/10.1515/jqas-2021-0005/html) (and [Intraocular](https://www.intraocular.net/))
+
+    -   [Going deep](https://www.degruyter.com/document/doi/10.1515/jqas-2019-0056/html)
+
+    -   [nflWAR](https://arxiv.org/pdf/1802.00998)
+
+Looking for the
+[2023](https://cmu-sure-2023.netlify.app/),
+[2022](https://www.stat.cmu.edu/cmsac/sure/2022/materials/),
+[2021](https://www.stat.cmu.edu/cmsac/sure/2021/materials/),
+or [2020](https://www.stat.cmu.edu/cmsac/sure/2020/materials/)
+websites?
