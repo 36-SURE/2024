@@ -1,7 +1,7 @@
 ---
 title: "Unsupervised learning: $k$-means clustering"
 author: "<br>SURE 2024<br><br>Department of Statistics & Data Science<br>Carnegie Mellon University"
-footer:  "[36-SURE.github.io](https://36-sure.github.io)"
+footer:  "[36-SURE.github.io/2024](https://36-sure.github.io/2024)"
 format:
   revealjs:
     theme: theme.scss
@@ -816,7 +816,7 @@ Then for any $k$, reconstruct the image by replacing each pixel vector with the 
 ## Appendix: $k$-means for image segmentation and compression
 
 ```{r}
-# https://raw.githubusercontent.com/36-SURE/36-SURE.github.io/main/data/spongebob.jpeg
+# https://raw.githubusercontent.com/36-SURE/2024/main/data/spongebob.jpeg
 set.seed(2)
 library(jpeg)
 img_raw <- readJPEG("../data/spongebob.jpeg")

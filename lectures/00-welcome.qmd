@@ -1,7 +1,7 @@
 ---
 title: "Welcome to SURE 2024"
 author: "<br>SURE 2024<br><br>Department of Statistics & Data Science<br>Carnegie Mellon University"
-footer:  "[36-SURE.github.io](https://36-sure.github.io)"
+footer:  "[36-SURE.github.io/2024](https://36-sure.github.io/2024)"
 format:
   revealjs:
     theme: theme.scss
@@ -84,7 +84,7 @@ Explore cutting-edge statistics and data science methodology with applications i
   
 ## Resources
 
-* [Website](https://36-SURE.github.io/)
+* [Website](https://36-SURE.github.io/2024)
 
 * [Google Calendar](https://calendar.google.com/calendar/embed?src=c_aca0e704d928c40d5a0dc89ec61c27e8d48e5f6367e1935f254c5131ebf93bb7%40group.calendar.google.com)
 
