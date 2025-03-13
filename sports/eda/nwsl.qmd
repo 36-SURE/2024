@@ -60,7 +60,7 @@ Each row in the dataset corresponds to a team-season and the columns are:
 
 ```{r, eval = FALSE}
 library(tidyverse)
-nwsl_team_stats <- read_csv("https://raw.githubusercontent.com/36-SURE/36-SURE.github.io/main/data/nwsl_team_stats.csv")
+nwsl_team_stats <- read_csv("https://raw.githubusercontent.com/36-SURE/2024/main/data/nwsl_team_stats.csv")
 ```
 
 In case you're curious, the code to build the data can be found [here](https://github.com/SCOREnetworkorg/sports-data-repository/blob/main/_prep/nwsl-team-stats/init-nwsl-team-season-stats.R).

@@ -70,5 +70,5 @@ Each row in the dataset corresponds to a US state/territory and the columns are:
 
 ```{r, eval = FALSE}
 library(tidyverse)
-nurses <- read_csv("https://raw.githubusercontent.com/36-SURE/36-SURE.github.io/main/data/nurses.csv")
+nurses <- read_csv("https://raw.githubusercontent.com/36-SURE/2024/main/data/nurses.csv")
 ```

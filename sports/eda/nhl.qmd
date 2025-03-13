@@ -83,7 +83,7 @@ Note that a full glossary of the features available for NHL shot data can be fou
 
 ```{r, eval = FALSE}
 library(tidyverse)
-nhl_shots <- read_csv("https://raw.githubusercontent.com/36-SURE/36-SURE.github.io/main/data/nhl_shots.csv")
+nhl_shots <- read_csv("https://raw.githubusercontent.com/36-SURE/2024/main/data/nhl_shots.csv")
 ```
 
 In case you're curious, the code to build this dataset can be found below. (Note that the data were originally downloaded from the MoneyPuck site.)

@@ -9,7 +9,7 @@ Let's start again by reading in the data from yesterday using the `read_csv()` f
 
 ```{r}
 library(tidyverse)
-heart_disease <- read_csv("https://raw.githubusercontent.com/36-SURE/36-SURE.github.io/main/data/heart_disease.csv")
+heart_disease <- read_csv("https://raw.githubusercontent.com/36-SURE/2024/main/data/heart_disease.csv")
 ```
 
 ## Previewing the data

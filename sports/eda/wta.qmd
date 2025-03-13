@@ -71,7 +71,7 @@ Note that a full glossary of the features available for match data can be found 
 
 ```{r, eval = FALSE}
 library(tidyverse)
-wta_grand_slam_matches <- read_csv("https://raw.githubusercontent.com/36-SURE/36-SURE.github.io/main/data/wta_grand_slam_matches.csv")
+wta_grand_slam_matches <- read_csv("https://raw.githubusercontent.com/36-SURE/2024/main/data/wta_grand_slam_matches.csv")
 ```
 
 In case you're curious, the code to build this dataset can be found below.

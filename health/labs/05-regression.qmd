@@ -10,7 +10,7 @@ Execute the following code chunk to load the heart disease dataset we worked wit
 ```{r}
 #| message: false
 library(tidyverse)
-heart_disease <- read_csv("https://raw.githubusercontent.com/36-SURE/36-SURE.github.io/main/data/heart_disease.csv")
+heart_disease <- read_csv("https://raw.githubusercontent.com/36-SURE/2024/main/data/heart_disease.csv")
 ```
 
 This dataset consists of 788 heart disease patients (608 women, 180 men).

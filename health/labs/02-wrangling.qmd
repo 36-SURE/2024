@@ -9,7 +9,7 @@ Our data are usually stored as a `.csv` file and after loading a `.csv` file int
 
 ```{r}
 library(tidyverse)
-heart_disease <- read_csv("https://raw.githubusercontent.com/36-SURE/36-SURE.github.io/main/data/heart_disease.csv")
+heart_disease <- read_csv("https://raw.githubusercontent.com/36-SURE/2024/main/data/heart_disease.csv")
 ```
 
 By default, `read_csv()` reads in the dataset as a `tbl` (aka `tibble`) object instead of a `data.frame` object. You can read about the differences [here](https://cran.r-project.org/web/packages/tibble/vignettes/tibble.html), but it's not that meaningful for purposes.

@@ -85,5 +85,5 @@ Each row in the dataset corresponds to a county in Pennsylvania on a given date 
 
 ```{r, eval=FALSE}
 library(tidyverse)
-covid_hospitalizations <- read_csv("https://raw.githubusercontent.com/36-SURE/36-SURE.github.io/main/data/covid_hospitalizations.csv")
+covid_hospitalizations <- read_csv("https://raw.githubusercontent.com/36-SURE/2024/main/data/covid_hospitalizations.csv")
 ```

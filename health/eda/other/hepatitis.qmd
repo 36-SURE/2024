@@ -61,5 +61,5 @@ Each row in the dataset represents a patient and the columns are:
 
 ```{r, eval=FALSE}
 library(tidyverse)
-hepatitis <- read_csv("https://raw.githubusercontent.com/36-SURE/36-SURE.github.io/main/data/hepatitis.csv")
+hepatitis <- read_csv("https://raw.githubusercontent.com/36-SURE/2024/main/data/hepatitis.csv")
 ```

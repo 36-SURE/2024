@@ -71,5 +71,5 @@ Each row of the dataset corresponds to a single hospital and the columns with de
 
 ```{r, eval=FALSE}
 library(tidyverse)
-hospitals <- read_csv("https://raw.githubusercontent.com/36-SURE/36-SURE.github.io/main/data/hospitals.csv")
+hospitals <- read_csv("https://raw.githubusercontent.com/36-SURE/2024/main/data/hospitals.csv")
 ```

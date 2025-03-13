@@ -29,7 +29,7 @@ and (d) subset out players with low minute totals (fewer than 250 minutes played
 ```{r}
 #| message: false
 library(tidyverse)
-nba_stats <- read_csv("https://raw.githubusercontent.com/36-SURE/36-SURE.github.io/main/data/nba_stats.csv")
+nba_stats <- read_csv("https://raw.githubusercontent.com/36-SURE/2024/main/data/nba_stats.csv")
 
 nba_stats <- nba_stats |>
   # summarize player stats across multiple teams they played for

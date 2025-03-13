@@ -58,5 +58,5 @@ The dataset is a sample of data from the CDC Wonder database for available birth
 
 ```{r, eval=FALSE}
 library(tidyverse)
-maternal <- read_csv("https://raw.githubusercontent.com/36-SURE/36-SURE.github.io/main/data/maternal.csv")
+maternal <- read_csv("https://raw.githubusercontent.com/36-SURE/2024/main/data/maternal.csv")
 ```

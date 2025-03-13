@@ -66,7 +66,7 @@ Note that a full glossary of the features available in the WNBA shot data can be
 
 ```{r, eval = FALSE}
 library(tidyverse)
-wnba_shots <- read_csv("https://raw.githubusercontent.com/36-SURE/36-SURE.github.io/main/data/wnba_shots.csv")
+wnba_shots <- read_csv("https://raw.githubusercontent.com/36-SURE/2024/main/data/wnba_shots.csv")
 ```
 
 In case you're curious, the code to build this dataset can be found below.

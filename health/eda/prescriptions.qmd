@@ -68,5 +68,5 @@ The sample of data is proportionally sampled across the states (e.g. 5% from eac
 
 ```{r, eval=FALSE}
 library(tidyverse)
-prescriptions <- read_csv("https://raw.githubusercontent.com/36-SURE/36-SURE.github.io/main/data/prescriptions.csv")
+prescriptions <- read_csv("https://raw.githubusercontent.com/36-SURE/2024/main/data/prescriptions.csv")
 ```

@@ -15,7 +15,7 @@ The following code chunk reads in the data, which is in a wide format.
 
 ```{r}
 # library(tidyverse)
-# nba_rapm_data <- read_csv("https://github.com/36-SURE/36-SURE.github.io/raw/main/data/nba_2223_season_rapm_data.csv.gz")
+# nba_rapm_data <- read_csv("https://github.com/36-SURE/2024/raw/main/data/nba_2223_season_rapm_data.csv.gz")
 # nba_rapm_data
 ```
 

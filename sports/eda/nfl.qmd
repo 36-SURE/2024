@@ -86,7 +86,7 @@ Note that a full glossary of the features available for NFL play-by-play data ca
 ```{r}
 #| eval: false
 library(tidyverse)
-nfl_passing <- read_csv("https://raw.githubusercontent.com/36-SURE/36-SURE.github.io/main/data/nfl_passing.csv")
+nfl_passing <- read_csv("https://raw.githubusercontent.com/36-SURE/2024/main/data/nfl_passing.csv")
 ```
 
 In case you're curious, the code to build this dataset can be found below.
